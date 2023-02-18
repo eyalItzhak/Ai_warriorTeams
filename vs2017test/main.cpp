@@ -467,8 +467,8 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target)
 		//NEED TO ADD FIGHTING HERE MAYBE?!
 		if (pCurrent->getParent() == nullptr) // Ghost one step away from the pacman
 		{
-			//cout << "GameOver" << endl;
-			//startGame = 0;
+			cout << "GameOver" << endl;
+			startGame = 0;
 			NextCol = col;
 			NextRow = row;
 		}
@@ -972,24 +972,45 @@ void PacmanRuningBFS()
 	}
 }
 
+
+void rangeToEnemey(Warrior fraindly , Team enemy ) {
+
+}
+
 #pragma endregion
 
 #pragma endregion
+
 void MoveTeams(int teamNum, int enemyTeam)
 {
+	int range = 5;
 	teams[teamNum]->PlayTurn();
+
+	int warriro1Row =  teams[teamNum]->warrior1->getLocation()->getRow();
+	int warriro1Col = teams[teamNum]->warrior1->getLocation()->getCol();
+	int EnemyRange = teams[enemyTeam]->closeRangeToTeamWarriors(warriro1Row, warriro1Col);
+
 	//warrior 1
+	if (EnemyRange>range) {
 	int target = teams[teamNum]->warrior1->GetTarget(teamNum);
 	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[enemyTeam]);
 	RecoverTempGraysGhosts(WARRIOR_TEAM_1+ teamNum, target, teams[enemyTeam], *teams[teamNum]->warrior1);
+	}
+
+	warriro1Row = teams[teamNum]->warrior2->getLocation()->getRow();
+	warriro1Col = teams[teamNum]->warrior2->getLocation()->getCol();
+	EnemyRange = teams[enemyTeam]->closeRangeToTeamWarriors(warriro1Row, warriro1Col);
+
 	//warrior 2
-	target = teams[teamNum]->warrior2->GetTarget(teamNum);
+	if (EnemyRange>range) {
+	int target = teams[teamNum]->warrior2->GetTarget(teamNum);
 	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[enemyTeam]);
 	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[enemyTeam], *teams[teamNum]->warrior2);
+	}
 	//luggage 
-	target = WARRIOR_TEAM_1 + teamNum;
-	AStarSearch(target, teams[teamNum]->luggage->getLocation(), teams[teamNum]);
-	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum], *teams[teamNum]->luggage);
+	//target = WARRIOR_TEAM_1 + teamNum;
+	//AStarSearch(target, teams[teamNum]->luggage->getLocation(), teams[teamNum]);
+	//RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum], *teams[teamNum]->luggage);
 }
 void gameIteration()
 {

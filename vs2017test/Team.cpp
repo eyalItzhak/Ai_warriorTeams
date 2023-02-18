@@ -26,6 +26,17 @@ std::vector<Cell*>Team::GetTargetByType(int type)
 	return locations;
 }
 
+int calculateManhattanDistance(int X1, int X2, int Y1, int Y2) {
+	int distance = abs(X2 - X1) + abs(Y2 - Y1);
+	return distance;
+}
+
+int Team :: closeRangeToTeamWarriors(int row, int col) {
+	int range1 = calculateManhattanDistance(row, warrior1->getLocation()->getRow(), col, warrior1->getLocation()->getCol());
+	int range2 = calculateManhattanDistance(row, warrior2->getLocation()->getRow(), col, warrior2->getLocation()->getCol());
+	return std::min(range1, range2);
+}
+
 void Team::PlayTurn()
 {
 	warrior1->PlayTurn();
