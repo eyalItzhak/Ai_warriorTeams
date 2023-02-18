@@ -9,19 +9,19 @@ WanderingState::~WanderingState()
 {
 }
 
-void WanderingState::MakeTransition(Cell* npc)
+void WanderingState::MakeTransition(Character* luggage)
 {
-	npc->getCurrentState()->OnStateExit(npc);
-	npc->setCurrentState(new AssistingState());
-	npc->getCurrentState()->OnStateEnter(npc);
+	luggage->getState()->OnStateExit(luggage);
+	luggage->setState(new AssistingState());
+	luggage->getState()->OnStateEnter(luggage);
 }
 
-void WanderingState::OnStateEnter(Cell* npc)
+void WanderingState::OnStateEnter(Character* luggage)
 {
-	npc->setChasing(true);
+	luggage->isAssisting = true;
 }
 
-void WanderingState::OnStateExit(Cell* npc)
+void WanderingState::OnStateExit(Character* luggage)
 {
-	npc->setChasing(false);
+	luggage->isAssisting = true;
 }

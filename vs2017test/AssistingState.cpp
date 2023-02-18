@@ -1,6 +1,5 @@
 #include "AssistingState.h"
 #include "WanderingState.h"
-
 AssistingState::AssistingState()
 {
 }
@@ -9,19 +8,19 @@ AssistingState::~AssistingState()
 {
 }
 
-void AssistingState::MakeTransition(Cell* npc)
+void AssistingState::MakeTransition(Character* luggage)
 {
-	npc->getCurrentState()->OnStateExit(npc);
-	npc->setCurrentState(new WanderingState());
-	npc->getCurrentState()->OnStateEnter(npc);
+	luggage->getState()->OnStateExit(luggage);
+	luggage->setState(new WanderingState());
+	luggage->getState()->OnStateEnter(luggage);
 }
 
-void AssistingState::OnStateEnter(Cell* npc)
+void AssistingState::OnStateEnter(Character* luggage)
 {
-	npc->setChasing(true);
+	luggage->isAssisting = true;
 }
 
-void AssistingState::OnStateExit(Cell* npc)
+void AssistingState::OnStateExit(Character* luggage)
 {
-	npc->setChasing(false);
+	luggage->isAssisting = false;
 }

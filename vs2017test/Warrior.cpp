@@ -15,10 +15,44 @@ int Warrior::GetTarget(int myTeam)
 	return LUGGAGE_TEAM_2;
 }
 
-Warrior::Warrior(int health, int ammo)
+Warrior::Warrior(int health, int am)
 {
 	isChasing = true;
-	Character(health, ammo, new ChasingState());
+	hp = health;
+	ammo = am;
+	state = new ChasingState();
+}
+void Warrior::PlayTurn()
+{
+	if (ammo < MIN_AMMO)
+		needAmmo = true;
+	if (isChasing)
+	{
+		if (hp < MIN_HP)
+		{
+			needHp = true;
+			getState()->MakeTransition(this);
+		}
+		if (ammo == 0)
+		{
+			getState()->MakeTransition(this);
+		}
+	}
+	else
+	{
+		if (hp >= MIN_HP)
+		{
+			needHp = false;
+			getState()->MakeTransition(this);
+		}
+		if (ammo >= MIN_AMMO)
+		{
+			needAmmo = false;
+			getState()->MakeTransition(this);
+		}
+	}
+	
+		
 }
 Warrior::~Warrior()
 {

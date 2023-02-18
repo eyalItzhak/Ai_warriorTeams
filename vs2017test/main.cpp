@@ -173,8 +173,11 @@ void SetUpTeams()
 	Team* team = new Team(startHealth, startAmmo);
 	teams.push_back(team);
 	team->warrior1->setLocation(PlaceItem(WARRIOR_TEAM_1, startRoom));
+	team->warrior1->getLocation()->setOldStatus(SPACE);
 	team->warrior2->setLocation(PlaceItem(WARRIOR_TEAM_1, startRoom));
+	team->warrior2->getLocation()->setOldStatus(SPACE);
 	team->luggage->setLocation(PlaceItem(LUGGAGE_TEAM_1, startRoom));
+	team->warrior2->getLocation()->setOldStatus(SPACE);
 	do
 	{
 		secondStartRoom = rand() % roomAmount;
@@ -182,8 +185,11 @@ void SetUpTeams()
 	team = new Team(startHealth, startAmmo);
 	teams.push_back(team);
 	team->warrior1->setLocation(PlaceItem(WARRIOR_TEAM_2, secondStartRoom));
+	team->warrior1->getLocation()->setOldStatus(SPACE);
 	team->warrior2->setLocation(PlaceItem(WARRIOR_TEAM_2, secondStartRoom));
+	team->warrior2->getLocation()->setOldStatus(SPACE);
 	team->luggage->setLocation(PlaceItem(LUGGAGE_TEAM_2, secondStartRoom));
+	team->warrior2->getLocation()->setOldStatus(SPACE);
 }
 Cell* PlaceItem(int type, int room)
 {
@@ -408,7 +414,6 @@ float cellsDistance(Cell* dest, Cell* src)
 void RecoverTempGraysGhosts(int source, int target,Team* targetTeam, Character charcter)
 {
 	int size = tempGrays.size();
-	bool ghostUpdated = false;
 	for (int i = 0; i < size; i++)
 	{
 		Cell* pCurrent = *tempGrays.begin();
@@ -419,7 +424,7 @@ void RecoverTempGraysGhosts(int source, int target,Team* targetTeam, Character c
 		{
 			if (pCurrent->getOldStatus() == source)
 				continue;
-			maze[charcter.getLocation()->getRow()][charcter.getLocation()->getCol()] = SPACE;
+			//maze[charcter.getLocation()->getRow()][charcter.getLocation()->getCol()] = SPACE;
 			charcter.getLocation()->setOldStatus(pCurrent->getOldStatus());
 			charcter.getLocation()->setCol(col);
 			charcter.getLocation()->setRow(row);
@@ -460,13 +465,13 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target)
 		Cell* targetLocation = new Cell(row, col, pCurrent);
 		tempGrays.push_back(targetLocation);
 		//NEED TO ADD FIGHTING HERE MAYBE?!
-		//if (pCurrent->getParent() == nullptr) // Ghost one step away from the pacman
-		//{
-		//	cout << "GameOver" << endl;
-		//	startGame = 0;
-		//	NextCol = col;
-		//	NextRow = row;
-		//}
+		if (pCurrent->getParent() == nullptr) // Ghost one step away from the pacman
+		{
+			//cout << "GameOver" << endl;
+			//startGame = 0;
+			NextCol = col;
+			NextRow = row;
+		}
 		/*else
 			cout << "Found Pacman Path" << endl;*/
 		RestorePathGhosts(pCurrent);
@@ -972,6 +977,7 @@ void PacmanRuningBFS()
 #pragma endregion
 void MoveTeams(int teamNum, int enemyTeam)
 {
+	teams[teamNum]->PlayTurn();
 	//warrior 1
 	int target = teams[teamNum]->warrior1->GetTarget(teamNum);
 	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[enemyTeam]);
@@ -981,16 +987,16 @@ void MoveTeams(int teamNum, int enemyTeam)
 	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[enemyTeam]);
 	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[enemyTeam], *teams[teamNum]->warrior2);
 	//luggage 
-
+	target = WARRIOR_TEAM_1 + teamNum;
+	AStarSearch(target, teams[teamNum]->luggage->getLocation(), teams[teamNum]);
+	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum], *teams[teamNum]->luggage);
 }
 void gameIteration()
 {
 	if (startGame == 1)
 	{
-		// warrior 1 from team 1 move
-		
 		MoveTeams(0, 1);
-		MoveTeams(1, 0);
+		//MoveTeams(1, 0);
 		
 		
 		
@@ -1037,11 +1043,6 @@ void idle()
 	{
 		gameIteration();
 	}
-	else {
-		maze[Pacman_cell.getRow()][Pacman_cell.getCol()] = WARRIOR_TEAM_1;
-		for (int j = 0; j < ghostsVector.size(); j++)
-			maze[ghostsVector[j]->getRow()][ghostsVector[j]->getCol()] = LUGGAGE_TEAM_1;
-	}
 	glutPostRedisplay(); // indirect call to display
 }
 
@@ -1071,15 +1072,6 @@ void main(int argc, char* argv[])
 	glutAttachMenu(GLUT_RIGHT_BUTTON); // attach to right mouse button
 
 	init();
-	Pacman_cell.setCurrentState(new ChasingState());
-	Pacman_cell.getCurrentState()->MakeTransition(&Pacman_cell);
-	Pacman_cell.setPacman(true);
-	for (int i = 0; i < ghostsVector.size(); i++)
-	{
-		ghostsVector[i]->setCurrentState(new RuningState());
-		ghostsVector[i]->getCurrentState()->MakeTransition(ghostsVector[i]);
-		ghostsVector[i]->setPacman(false);
-	}
 	glutMainLoop();
 }
 

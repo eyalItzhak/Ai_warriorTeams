@@ -1,6 +1,6 @@
 #include "RuningState.h"
 #include "ChasingState.h"
-
+#include "Warrior.h"
 
 RuningState::RuningState()
 {
@@ -10,19 +10,19 @@ RuningState::~RuningState()
 {
 }
 
-void RuningState::MakeTransition(Cell* npc)
+void RuningState::MakeTransition(Character* warrior)
 {
-	npc->getCurrentState()->OnStateExit(npc);
-	npc->setCurrentState(new ChasingState());
-	npc->getCurrentState()->OnStateEnter(npc);
+	warrior->getState()->OnStateExit(warrior);
+	warrior->setState(new ChasingState());
+	warrior->getState()->OnStateEnter(warrior);
 }
 
-void RuningState::OnStateEnter(Cell* npc)
+void RuningState::OnStateEnter(Character* warrior)
 {
-	npc->setChasing(false);
+	warrior->isChasing = false;
 }
 
-void RuningState::OnStateExit(Cell* npc)
+void RuningState::OnStateExit(Character* warrior)
 {
-	npc->setChasing(true);
+	warrior->isChasing = true;
 }
