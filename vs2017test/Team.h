@@ -8,6 +8,7 @@ public:
 	Team(int health, int ammo);
 	~Team();
 	std::vector<Cell*> GetTargetByType(int type);
+	void PlayTurn();
 	Warrior* warrior1;
 	Warrior* warrior2;
 	Luggage* luggage;
