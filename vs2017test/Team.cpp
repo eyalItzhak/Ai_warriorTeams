@@ -28,6 +28,7 @@ std::vector<Cell*>Team::GetTargetByType(int type)
 
 void Team::PlayTurn()
 {
+	luggageMove = false;
 	warrior1->PlayTurn();
 	warrior2->PlayTurn();
 	luggage->PlayTurn(warrior1,warrior2);
