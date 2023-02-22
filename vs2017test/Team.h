@@ -12,5 +12,8 @@ public:
 	Warrior* warrior1;
 	Warrior* warrior2;
 	Luggage* luggage;
+	int NextRow, NextCol;
+	int LuggageNextRow, LuggageNextCol;
+	bool luggageMove = false;
 };
 
