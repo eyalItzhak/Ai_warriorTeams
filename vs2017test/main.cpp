@@ -11,18 +11,20 @@
 #include "ChasingState.h"
 #include "Team.h"
 #include "Enum.h"
+#include "bullet.h"
+#include "Grenade.h"
 using namespace std;
 using namespace std::this_thread; // sleep_for, sleep_until
 using namespace std::chrono; // nanoseconds, system_clock, seconds
 #pragma endregion
-#pragma region global
+#pragma region globalAndParams
 // Maze global variables
-const int MSZ = 100;
 int maze[MSZ][MSZ];
 bool drawPassages = true;
 
 // Type of frontend elements
-
+const int W = 700; // window Width
+const int H = 700; // window Height
 
 //Room global variables
 
@@ -48,6 +50,13 @@ bool findPathForPacFlag = false;
 bool ScaredGhostsFlag = false;
 int pacManNextMoveTimer = 0;
 Cell* pacmanNextCell;
+
+bool fireBulet = false, throwGrenade = false;
+Bullet* pb = nullptr;
+Grenade* pg = nullptr;
+
+double security_map[MSZ][MSZ] = { 0 };
+
 #pragma endregion
 #pragma region declration
 void InitMaze();
@@ -63,6 +72,9 @@ Cell* PlaceItem(int type, int room);
 void SetUpTeams();
 void gameIteration();
 void AStarSearch(int target, Cell* currentLocation, Team* sourceTeam,Team* targetTeam);
+
+void mouse(int button, int state, int x, int y);
+
 #pragma endregion
 
 #pragma region mapCreate
@@ -82,8 +94,11 @@ void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT); // clean frame buffer
 
-
 	ShowMaze();
+	if (pb != nullptr)
+		pb->draw();
+	if (pg != nullptr)
+		pg->draw();
 
 	glutSwapBuffers(); // show all
 }
@@ -102,6 +117,10 @@ void InitMaze()
 	for (i = 1; i < MSZ - 1; i++)
 		for (j = 1; j < MSZ - 1; j++)
 		{
+
+			
+
+
 			if (rand() % 10 == roomAmount) // mostly WALLs
 			{
 				int size = rand() % 30 + 10; // min size of a room is 10 by 10 (max 40x40); 
@@ -567,14 +586,42 @@ void idle()
 	{
 		gameIteration();
 	}
+
+	if (fireBulet){
+      fireBulet = pb->fire(maze);
+	}
+
+	if (throwGrenade) {
+		pg->SimulateExplosion(maze, security_map);
+	}
+		
 	glutPostRedisplay(); // indirect call to display
+}
+
+void mouse(int button, int state, int x, int y)
+{
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		//printf("clickEvent x %f, y %f, %f \n" , MSZ * x / (double)W, MSZ * (H - y) / (double)H, (rand() % 360) * PI / 180.0);
+		pb = new Bullet(MSZ * x / (double)W, MSZ * (H - y) / (double)H, (rand() % 360) * PI / 180.0);
+		pg = new Grenade(MSZ * x / (double)W, MSZ * (H - y) / (double)H);
+	}
 }
 
 void menu(int choice)
 {
 	switch (choice)
 	{
-	case 1: // run Best First Search
+	case 1: // fire a bullet
+		fireBulet = true;
+		break;
+
+	case 2: // throw grenade
+		throwGrenade = true;
+		break;
+
+
+	case 3: // run Best First Search
 		startGame = true;
 		break;
 	}
@@ -585,14 +632,19 @@ void main(int argc, char* argv[])
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 	glutInitWindowSize(1200, 900);
+	glutInitWindowSize(W, H);
 	glutInitWindowPosition(400, 200);
 	glutCreateWindow("First Example");
 
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
+	glutMouseFunc(mouse);
 
 	glutCreateMenu(menu); // defines function menu as "menu" function
-	glutAddMenuEntry("Start Game", 1);
+	
+	glutAddMenuEntry("fire bullet", 1);
+	glutAddMenuEntry("Throw grenade", 2);
+     glutAddMenuEntry("Start Game", 3);
 	glutAttachMenu(GLUT_RIGHT_BUTTON); // attach to right mouse button
 
 	init();
