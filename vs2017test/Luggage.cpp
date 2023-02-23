@@ -9,6 +9,7 @@ Luggage::Luggage(int health, int am)
 	hp = health;
 	ammo = am;
 	state = new WanderingState();
+	0.2;
 }
 void Luggage::PlayTurn(Warrior* warrior1, Warrior* warrior2)
 {

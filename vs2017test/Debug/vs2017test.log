@@ -5,10 +5,10 @@ D:\git\Ai_warriorTeams\vs2017test\main.cpp(137,20): warning C4018: '<': signed/u
 D:\git\Ai_warriorTeams\vs2017test\main.cpp(139,21): warning C4018: '<': signed/unsigned mismatch
 D:\git\Ai_warriorTeams\vs2017test\main.cpp(97,12): warning C4101: 'random': unreferenced local variable
 D:\git\Ai_warriorTeams\vs2017test\main.cpp(403,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-D:\git\Ai_warriorTeams\vs2017test\main.cpp(504,20): warning C4018: '<': signed/unsigned mismatch
-D:\git\Ai_warriorTeams\vs2017test\main.cpp(622,13): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
-D:\git\Ai_warriorTeams\vs2017test\main.cpp(748,20): warning C4018: '<': signed/unsigned mismatch
-D:\git\Ai_warriorTeams\vs2017test\main.cpp(748,45): warning C4552: '<': result of expression not used
-D:\git\Ai_warriorTeams\vs2017test\main.cpp(911,13): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
-D:\git\Ai_warriorTeams\vs2017test\main.cpp(1075,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(568,20): warning C4018: '<': signed/unsigned mismatch
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(686,13): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(812,20): warning C4018: '<': signed/unsigned mismatch
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(812,45): warning C4552: '<': result of expression not used
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(975,13): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(1141,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
   vs2017test.vcxproj -> D:\git\Ai_warriorTeams\Debug\vs2017test.exe

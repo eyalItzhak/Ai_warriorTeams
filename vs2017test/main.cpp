@@ -63,7 +63,7 @@ Cell* PlaceItem(int type, int room);
 void SetUpTeams();
 // Game started functions
 void gameIteration();
-void AStarSearch(int target, Cell* currentLocation, Team* sourceTeam,Team* targetTeam);
+void AStarSearch(int target, Cell* currentLocation, Team* sourceTeam,Team* targetTeam, float badJudgmentFactor);
 void PacmanRuningBFS();
 
 #pragma endregion
@@ -446,23 +446,87 @@ void RecoverTempGraysGhosts(int source, int target, Team* sourceTeam,Team* targe
 		maze[row][col] = pCurrent->getOldStatus();
 	}
 }
+bool ValidMove(int row, int col)
+{
+	return maze[row][col] == SPACE || maze[row][col] == AMMO || maze[row][col] == HP || maze[row][col] == GRAY || maze[row][col] == BLACK || maze[row][col] == PATH;
+}
+void FindWrongMove(Cell* pc, Team* sourceTeam)
+{
+	int row = pc->getRow();
+	int col = pc->getCol();
+	bool valid = false;
+	do
+	{
+		if (ValidMove(pc->getRow() + 1, pc->getCol())) //UP
+		{
+			row = row + 1;
+			valid = true;
+		}
+		else if (ValidMove(pc->getRow(), pc->getCol() + 1)) //RIGHT
+		{
+			col = col + 1;
+			valid = true;
+		}
+		else if (ValidMove(pc->getRow() - 1, pc->getCol())) //DOWN
+		{
+			row = row - 1;
+			valid = true;
+		}
+		else if(ValidMove(pc->getRow(), pc->getCol() - 1))//LEFT
+		{
+			col = col - 1;
+			valid = true;
+		}
+	} while (!valid);
+	
+	if (sourceTeam->luggageMove) 
+	{
+		sourceTeam->LuggageNextCol = col;
+		sourceTeam->LuggageNextRow = row;
+	}
+	else
+	{
+		sourceTeam->NextCol = col;
+		sourceTeam->NextRow = row;
+	}
+	cout << "Bad Move Found!" << endl;
+	/*pc->setRow(move->getRow());
+	pc->setCol(move->getCol());*/
+	
+}
 
-void RestorePathGhosts(Cell* pc,Team* sourceTeam) //add flag for running and change next row and nextCol logic to fit situation
+void RestorePathGhosts(Cell* pc,Team* sourceTeam, float badJudgmentFactor) //add flag for running and change next row and nextCol logic to fit situation
 {
 	while (pc->getParent() != nullptr)
 	{
 		if (pc->getParent()->getParent() == nullptr)
 		{
-			if (sourceTeam->luggageMove)
+			if (rand() % (int)(1.0 / badJudgmentFactor) == 0) //move to the WRONG direction
 			{
-				sourceTeam->LuggageNextCol = pc->getCol();
-				sourceTeam->LuggageNextRow = pc->getRow();
+				/*cout << "Bad Move!" << endl;
+				Cell* move =FindWrongMove(pc, sourceTeam);
+				maze[move->getRow()][move->getCol()] = PATH;*/
+				//move->setOldStatus(pc.getst)
+				/*Cell* tmp = pc->getParent();
+				pc->deleteParent();
+				pc = tmp;*/
+				//continue;
+				FindWrongMove(pc, sourceTeam);
 			}
-			else
+			else // move to the right direction
 			{
-				sourceTeam->NextCol = pc->getCol();
-				sourceTeam->NextRow = pc->getRow();
+				if (sourceTeam->luggageMove)
+				{
+					sourceTeam->LuggageNextCol = pc->getCol();
+					sourceTeam->LuggageNextRow = pc->getRow();
+				}
+				else
+				{
+					sourceTeam->NextCol = pc->getCol();
+					sourceTeam->NextRow = pc->getRow();
+				}
 			}
+			
 		}
 		maze[pc->getRow()][pc->getCol()] = PATH;
 		pc = pc->getParent();
@@ -470,7 +534,7 @@ void RestorePathGhosts(Cell* pc,Team* sourceTeam) //add flag for running and cha
 }
 
 //// Check distance
-void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, Team* team)
+void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, Team* team, float judgment)
 {
 	if (maze[row][col] == target) // The algorithm is over
 	{
@@ -488,7 +552,7 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 		}
 		/*else
 			cout << "Found Pacman Path" << endl;*/
-		RestorePathGhosts(pCurrent, team);
+		RestorePathGhosts(pCurrent, team, judgment);
 	}
 	else
 	{
@@ -509,7 +573,7 @@ bool FoundTarget(vector<Cell*> locations, int target)
 	return true;
 }
 
-void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targetTeam)
+void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targetTeam, float judgment)
 {
 	roomGrays.clear();
 	drawPassages = true;
@@ -534,19 +598,19 @@ void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targe
 		// 3 check the neighbors of pCurrent and pick the white one and add them to the end of grays
 		// UP
 		if (maze[row + 1][col] == SPACE || maze[row + 1][col] == target || (maze[row + 1][col] == AMMO) || (maze[row + 1][col] == HP))
-			CheckNeighborDistanceGhosts(pCurrent, row + 1, col, target, sourceTeam);
+			CheckNeighborDistanceGhosts(pCurrent, row + 1, col, target, sourceTeam, judgment);
 		// DOWN
 		if (drawPassages)
 			if (maze[row - 1][col] == SPACE || maze[row - 1][col] == target || (maze[row - 1][col] == AMMO) || (maze[row - 1][col] == HP))
-				CheckNeighborDistanceGhosts(pCurrent, row - 1, col, target, sourceTeam);
+				CheckNeighborDistanceGhosts(pCurrent, row - 1, col, target, sourceTeam, judgment);
 		// right		
 		if (drawPassages)
 			if (maze[row][col + 1] == SPACE || maze[row][col + 1] == target || (maze[row][col + 1] == AMMO) || (maze[row][col + 1] == HP))
-				CheckNeighborDistanceGhosts(pCurrent, row, col + 1, target, sourceTeam);
+				CheckNeighborDistanceGhosts(pCurrent, row, col + 1, target, sourceTeam, judgment);
 		// left		
 		if (drawPassages)
 			if (maze[row][col - 1] == SPACE || maze[row][col - 1] == target || (maze[row][col - 1] == AMMO) || (maze[row][col - 1] == HP))
-				CheckNeighborDistanceGhosts(pCurrent, row, col - 1, target, sourceTeam);
+				CheckNeighborDistanceGhosts(pCurrent, row, col - 1, target, sourceTeam, judgment);
 	}
 }
 #pragma endregion
@@ -994,12 +1058,12 @@ void MoveTeams(int teamNum, int enemyTeam)
 	teams[teamNum]->PlayTurn();
 	//warrior 1
 	int target = teams[teamNum]->warrior1->GetTarget(teamNum);
- 	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[teamNum],teams[enemyTeam]);
+ 	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1->getBadJudgment());
  	RecoverTempGraysGhosts(WARRIOR_TEAM_1+ teamNum, target, teams[teamNum],teams[enemyTeam], *teams[teamNum]->warrior1);
 	//warrior 2
-	target = teams[teamNum]->warrior2->GetTarget(teamNum);
-	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[teamNum],teams[enemyTeam]);
-  	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[teamNum],teams[enemyTeam], *teams[teamNum]->warrior2);
+	/*target = teams[teamNum]->warrior2->GetTarget(teamNum);
+	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2->getBadJudgment());
+  	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[teamNum],teams[enemyTeam], *teams[teamNum]->warrior2);*/
 	////luggage 
 	/*teams[teamNum]->luggageMove = true;
 	target = WARRIOR_TEAM_1 + teamNum;
@@ -1010,6 +1074,8 @@ void gameIteration()
 {
 	if (startGame == 1)
 	{
+		teams[0]->warrior1->setBadJudgment(1);
+		teams[1]->warrior1->setBadJudgment(0);
 		MoveTeams(0, 1);
 		MoveTeams(1, 0);
 		

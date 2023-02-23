@@ -21,6 +21,7 @@ Warrior::Warrior(int health, int am)
 	hp = health;
 	ammo = am;
 	state = new ChasingState();
+	badJudgment = 0.1;
 }
 void Warrior::PlayTurn()
 {
