@@ -26,11 +26,11 @@ std::vector<Cell*>Team::GetTargetByType(int type)
 	return locations;
 }
 
-void Team::PlayTurn()
+void Team::PlayTurn(int teamNum)
 {
 	luggageMove = false;
-	warrior1->PlayTurn();
-	warrior2->PlayTurn();
+	warrior1->PlayTurn(teamNum);
+	warrior2->PlayTurn(teamNum);
 	luggage->PlayTurn(warrior1,warrior2);
 }
 
