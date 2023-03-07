@@ -4,16 +4,6 @@
 int Warrior::GetTarget()
 {
 	return target;
-	/*if (isChasing)
-	{
-		if (myTeam == 0)
-			return WARRIOR_TEAM_2;
-		else
-			return WARRIOR_TEAM_1;
-	}
-	if (myTeam == 0)
-		return LUGGAGE_TEAM_1;
-	return LUGGAGE_TEAM_2;*/
 }
 
 Warrior::Warrior(int health, int am)
@@ -70,14 +60,7 @@ void Warrior::PlayTurn(int myTeam)
 			getState()->MakeTransition(this);
 			return;
 		}
-		
-		/*if (myTeam == 0)
-			target = LUGGAGE_TEAM_1;
-		else
-			target = LUGGAGE_TEAM_2;*/
 	}
-	
-		
 }
 Warrior::~Warrior()
 {
