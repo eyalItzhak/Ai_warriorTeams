@@ -33,9 +33,11 @@ vector<Cell*> grays;
 int supplyPerRoomAmount = 2;
 int startHealth = 100;
 int startAmmo = 100;
+int supplyBuff = 30;
 // Game global variables
 Cell Pacman_cell;
-vector<Cell*> ghostsVector;
+vector<Cell*> ammoVector;
+vector<Cell*> hpVector;
 bool found_Ghost = false;
 int NextRow, NextCol;
 vector<Team*> teams;
@@ -46,6 +48,7 @@ bool findPathForPacFlag = false;
 bool ScaredGhostsFlag = false;
 int pacManNextMoveTimer = 0;
 Cell* pacmanNextCell;
+bool flag = true;
 #pragma endregion
 
 #pragma region Functions Declarition 
@@ -63,7 +66,7 @@ Cell* PlaceItem(int type, int room);
 void SetUpTeams();
 // Game started functions
 void gameIteration();
-void AStarSearch(int target, Cell* currentLocation, Team* sourceTeam,Team* targetTeam);
+void AStarSearch(int target, Cell* currentLocation, Team* sourceTeam,Team* targetTeam, float badJudgmentFactor, Character* character);
 void PacmanRuningBFS();
 
 #pragma endregion
@@ -173,11 +176,8 @@ void SetUpTeams()
 	Team* team = new Team(startHealth, startAmmo);
 	teams.push_back(team);
 	team->warrior1->setLocation(PlaceItem(WARRIOR_TEAM_1, startRoom));
-	team->warrior1->getLocation()->setOldStatus(SPACE);
 	team->warrior2->setLocation(PlaceItem(WARRIOR_TEAM_1, startRoom));
-	team->warrior2->getLocation()->setOldStatus(SPACE);
 	team->luggage->setLocation(PlaceItem(LUGGAGE_TEAM_1, startRoom));
-	team->luggage->getLocation()->setOldStatus(SPACE);
 	do
 	{
 		secondStartRoom = rand() % roomAmount;
@@ -185,11 +185,8 @@ void SetUpTeams()
 	team = new Team(startHealth, startAmmo);
 	teams.push_back(team);
 	team->warrior1->setLocation(PlaceItem(WARRIOR_TEAM_2, secondStartRoom));
-	team->warrior1->getLocation()->setOldStatus(SPACE);
 	team->warrior2->setLocation(PlaceItem(WARRIOR_TEAM_2, secondStartRoom));
-	team->warrior2->getLocation()->setOldStatus(SPACE);
 	team->luggage->setLocation(PlaceItem(LUGGAGE_TEAM_2, secondStartRoom));
-	team->luggage->getLocation()->setOldStatus(SPACE);
 }
 Cell* PlaceItem(int type, int room)
 {
@@ -204,6 +201,7 @@ Cell* PlaceItem(int type, int room)
 			validLocation = true;
 			cell->setRow(xPos);
 			cell->setCol(yPos);
+			cell->setOldStatus(SPACE);
 		}
 	}
 	return cell;
@@ -216,7 +214,10 @@ void SetUpSupply(int type)
 		int counter = 0;
 		while (counter < supplyPerRoomAmount)
 		{
-			PlaceItem(type, i);
+			if(type == AMMO)
+				ammoVector.push_back(PlaceItem(type, i));
+			else if(type == HP)
+				hpVector.push_back(PlaceItem(type, i));
 			counter++;
 		}
 	}
@@ -411,7 +412,21 @@ float cellsDistance(Cell* dest, Cell* src)
 #pragma region Ghost Logic
 
 #pragma region Ghosts Chasing Logic
-void RecoverTempGraysGhosts(int source, int target, Team* sourceTeam,Team* targetTeam, Character charcter)
+
+int FindCellPosition(vector<Cell*> cells,int row,int col)
+{
+	for (int i = 0; i < cells.size(); i++)
+	{
+		if (cells[i]->getCol() == col && cells[i]->getRow() == row) 
+		{
+			cout << "Found cell position!" << endl;
+			return i;
+		}
+	}
+	cout << "Didn't find cell position!" << endl;
+	return -1;
+}
+void RecoverTempGraysGhosts(int source, int target, Team* sourceTeam,Team* targetTeam, Character* charcter)
 {
 	int size = tempGrays.size();
 	for (int i = 0; i < size; i++)
@@ -426,10 +441,11 @@ void RecoverTempGraysGhosts(int source, int target, Team* sourceTeam,Team* targe
 		{
 			if (pCurrent->getOldStatus() == source)
 				continue;
-			maze[charcter.getLocation()->getRow()][charcter.getLocation()->getCol()] = SPACE;
-			charcter.getLocation()->setOldStatus(pCurrent->getOldStatus());
-			charcter.getLocation()->setCol(col);
-			charcter.getLocation()->setRow(row);
+			maze[charcter->getLocation()->getRow()][charcter->getLocation()->getCol()] = SPACE;
+			//charcter->getLocation()->setOldStatus(pCurrent->getOldStatus());
+			charcter->getLocation()->setCol(col);
+			charcter->getLocation()->setRow(row);
+			charcter->getLocation()->setOldStatus(source);
 			maze[row][col] = source;
 			continue;
 		}
@@ -438,7 +454,7 @@ void RecoverTempGraysGhosts(int source, int target, Team* sourceTeam,Team* targe
 			if (startGame == 1)
 			{
 				maze[row][col] = target;
-				maze[charcter.getLocation()->getRow()][charcter.getLocation()->getCol()] = source;
+				maze[charcter->getLocation()->getRow()][charcter->getLocation()->getCol()] = source;
 			}
 				
 			continue;
@@ -446,23 +462,87 @@ void RecoverTempGraysGhosts(int source, int target, Team* sourceTeam,Team* targe
 		maze[row][col] = pCurrent->getOldStatus();
 	}
 }
+bool ValidMove(int row, int col)
+{
+	return maze[row][col] == SPACE || maze[row][col] == AMMO || maze[row][col] == HP || maze[row][col] == GRAY || maze[row][col] == BLACK || maze[row][col] == PATH;
+}
+void FindWrongMove(Cell* pc, Team* sourceTeam)
+{
+	int row = pc->getRow();
+	int col = pc->getCol();
+	bool valid = false;
+	do
+	{
+		if (ValidMove(pc->getRow() + 1, pc->getCol())) //UP
+		{
+			row = row + 1;
+			valid = true;
+		}
+		else if (ValidMove(pc->getRow(), pc->getCol() + 1)) //RIGHT
+		{
+			col = col + 1;
+			valid = true;
+		}
+		else if (ValidMove(pc->getRow() - 1, pc->getCol())) //DOWN
+		{
+			row = row - 1;
+			valid = true;
+		}
+		else if(ValidMove(pc->getRow(), pc->getCol() - 1))//LEFT
+		{
+			col = col - 1;
+			valid = true;
+		}
+	} while (!valid);
+	
+	if (sourceTeam->luggageMove) 
+	{
+		sourceTeam->LuggageNextCol = col;
+		sourceTeam->LuggageNextRow = row;
+	}
+	else
+	{
+		sourceTeam->NextCol = col;
+		sourceTeam->NextRow = row;
+	}
+	cout << "Bad Move Found!" << endl;
+	/*pc->setRow(move->getRow());
+	pc->setCol(move->getCol());*/
+	
+}
 
-void RestorePathGhosts(Cell* pc,Team* sourceTeam) //add flag for running and change next row and nextCol logic to fit situation
+void RestorePathGhosts(Cell* pc,Team* sourceTeam, float badJudgmentFactor) //add flag for running and change next row and nextCol logic to fit situation
 {
 	while (pc->getParent() != nullptr)
 	{
 		if (pc->getParent()->getParent() == nullptr)
 		{
-			if (sourceTeam->luggageMove)
+			if (rand() % (int)(1.0 / badJudgmentFactor) == 0) //move to the WRONG direction
 			{
-				sourceTeam->LuggageNextCol = pc->getCol();
-				sourceTeam->LuggageNextRow = pc->getRow();
+				/*cout << "Bad Move!" << endl;
+				Cell* move =FindWrongMove(pc, sourceTeam);
+				maze[move->getRow()][move->getCol()] = PATH;*/
+				//move->setOldStatus(pc.getst)
+				/*Cell* tmp = pc->getParent();
+				pc->deleteParent();
+				pc = tmp;*/
+				//continue;
+				FindWrongMove(pc, sourceTeam);
 			}
-			else
+			else // move to the right direction
 			{
-				sourceTeam->NextCol = pc->getCol();
-				sourceTeam->NextRow = pc->getRow();
+				if (sourceTeam->luggageMove)
+				{
+					sourceTeam->LuggageNextCol = pc->getCol();
+					sourceTeam->LuggageNextRow = pc->getRow();
+				}
+				else
+				{
+					sourceTeam->NextCol = pc->getCol();
+					sourceTeam->NextRow = pc->getRow();
+				}
 			}
+			
 		}
 		maze[pc->getRow()][pc->getCol()] = PATH;
 		pc = pc->getParent();
@@ -470,7 +550,7 @@ void RestorePathGhosts(Cell* pc,Team* sourceTeam) //add flag for running and cha
 }
 
 //// Check distance
-void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, Team* team)
+void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, Team* team, float judgment,Character* character)
 {
 	if (maze[row][col] == target) // The algorithm is over
 	{
@@ -481,6 +561,25 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 		//NEED TO ADD FIGHTING HERE MAYBE?!
 		if (pCurrent->getParent() == nullptr) // Ghost one step away from the pacman
 		{
+			if (target == HP || target == AMMO)
+			{
+				if (target == HP)
+					character->setHp(character->getHp() + supplyBuff); // ADD HP
+				else 
+					character->setAmmo(character->getAmmo() + supplyBuff); // ADD AMMO
+				if (team->luggageMove)
+				{
+					team->LuggageNextCol = col;
+					team->LuggageNextRow = row;
+				}
+				else
+				{
+					team->NextCol = col;
+					team->NextRow = row;
+				}
+				maze[row][col] = SPACE;
+			}
+			
 			//cout << "GameOver" << endl;
 			//startGame = 0;
 			/*NextCol = col;
@@ -488,7 +587,7 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 		}
 		/*else
 			cout << "Found Pacman Path" << endl;*/
-		RestorePathGhosts(pCurrent, team);
+		RestorePathGhosts(pCurrent, team, judgment);
 	}
 	else
 	{
@@ -499,8 +598,16 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 		sortedInsert(pc);
 	}
 }
-bool FoundTarget(vector<Cell*> locations, int target)
+bool FoundTarget(Team* targetTeam, int target)
 {
+	vector<Cell*> locations;
+	if (target == HP)
+		locations = hpVector;
+
+	else if (target == AMMO)
+		locations = ammoVector;
+	else
+		locations = targetTeam->GetTargetByType(target);
 	for (int i = 0; i < locations.size(); i++)
 	{
 		if (maze[locations[i]->getRow()][locations[i]->getCol()] != target)
@@ -509,7 +616,7 @@ bool FoundTarget(vector<Cell*> locations, int target)
 	return true;
 }
 
-void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targetTeam)
+void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targetTeam, float judgment, Character* character)
 {
 	roomGrays.clear();
 	drawPassages = true;
@@ -520,7 +627,7 @@ void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targe
 	tempGrays.push_back(currentLocation); // temp Grays will be reset to thier old value at the end
 
 
-	while (FoundTarget(targetTeam->GetTargetByType(target), target))
+	while (FoundTarget(targetTeam, target))
 	{
 		pCurrent = *roomGrays.begin();
 		// 2.1 and remove it from grays
@@ -534,517 +641,56 @@ void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targe
 		// 3 check the neighbors of pCurrent and pick the white one and add them to the end of grays
 		// UP
 		if (maze[row + 1][col] == SPACE || maze[row + 1][col] == target || (maze[row + 1][col] == AMMO) || (maze[row + 1][col] == HP))
-			CheckNeighborDistanceGhosts(pCurrent, row + 1, col, target, sourceTeam);
+			CheckNeighborDistanceGhosts(pCurrent, row + 1, col, target, sourceTeam, judgment, character);
 		// DOWN
 		if (drawPassages)
 			if (maze[row - 1][col] == SPACE || maze[row - 1][col] == target || (maze[row - 1][col] == AMMO) || (maze[row - 1][col] == HP))
-				CheckNeighborDistanceGhosts(pCurrent, row - 1, col, target, sourceTeam);
+				CheckNeighborDistanceGhosts(pCurrent, row - 1, col, target, sourceTeam, judgment, character);
 		// right		
 		if (drawPassages)
 			if (maze[row][col + 1] == SPACE || maze[row][col + 1] == target || (maze[row][col + 1] == AMMO) || (maze[row][col + 1] == HP))
-				CheckNeighborDistanceGhosts(pCurrent, row, col + 1, target, sourceTeam);
+				CheckNeighborDistanceGhosts(pCurrent, row, col + 1, target, sourceTeam, judgment, character);
 		// left		
 		if (drawPassages)
 			if (maze[row][col - 1] == SPACE || maze[row][col - 1] == target || (maze[row][col - 1] == AMMO) || (maze[row][col - 1] == HP))
-				CheckNeighborDistanceGhosts(pCurrent, row, col - 1, target, sourceTeam);
-	}
-}
-#pragma endregion
-
-#pragma region Ghost Runing Logic
-
-void MoveGhost(int GhostIndex)
-{
-	Cell* pc = pacmanNextCell;
-	while (pc->getParent() != nullptr)
-	{
-		if (pc->getParent()->getParent() == nullptr)
-		{
-			NextCol = pc->getCol();
-			NextRow = pc->getRow();
-			pc->deleteParent();
-			break;
-		}
-		pc = pc->getParent();
-	}
-
-	maze[ghostsVector[GhostIndex]->getRow()][ghostsVector[GhostIndex]->getCol()] = ghostsVector[GhostIndex]->getOldStatus();
-	Pacman_cell.setCol(NextCol);
-	Pacman_cell.setRow(NextRow);
-	ghostsVector[GhostIndex]->setOldStatus(maze[NextRow][NextCol]);
-	maze[NextRow][NextCol] = LUGGAGE_TEAM_1;
-}
-
-void RecoverTempGhostRuning(int GhostIndex)
-{
-	int size = tempGrays.size();
-	for (int i = 0; i < size; i++)
-	{
-		Cell* pCurrent = *tempGrays.begin();
-		tempGrays.erase(tempGrays.begin());
-		int row = pCurrent->getRow();
-		int col = pCurrent->getCol();
-		if (row == NextRow && col == NextCol)
-		{
-			ghostsVector[GhostIndex]->setCol(NextCol);
-			ghostsVector[GhostIndex]->setRow(NextRow);
-			ghostsVector[GhostIndex]->setOldStatus(pCurrent->getOldStatus());
-			maze[NextRow][NextCol] = LUGGAGE_TEAM_1;
-			continue;
-		}
-		maze[row][col] = pCurrent->getOldStatus();
+				CheckNeighborDistanceGhosts(pCurrent, row, col - 1, target, sourceTeam, judgment, character);
 	}
 }
 
-void RestorePathGhostRuning(Cell* pc)
-{
-	pacmanNextCell = pc;
-	while (pc->getParent() != nullptr)
-	{
-		if (pc->getParent()->getParent() == nullptr)
-		{
-			NextCol = pc->getCol();
-			NextRow = pc->getRow();
-			maze[pc->getRow()][pc->getCol()] = PATH;
-			Cell* tmp = pc->getParent();
-			pc->deleteParent();
-			pc = tmp;
-			continue;
-		}
-		maze[pc->getRow()][pc->getCol()] = PATH;
-		pc = pc->getParent();
-	}
-
-}
-
-int checkDistanceFromPacman(Cell* pc, int gRow, int gCol)
-{
-	return sqrt(pow(pc->getCol() - gCol, 2) +
-		pow(pc->getRow() - gRow, 2));
-}
-
-void checkNeighborGhostRuning(int row, int col, Cell* pCurrent)
-{
-	Cell* pneig;
-	if (maze[row][col] == WARRIOR_TEAM_1)
-	{
-		int max = 0;
-		int size = grays.size();
-		for (int i = 0; i < size; i++)
-		{
-			Cell* cell = *grays.begin();
-			grays.erase(grays.begin());
-			int value = checkDistanceFromPacman(cell, row, col);
-			if (max < value)
-			{
-				max = value;
-				pCurrent = cell;
-			}
-		}
-		cout << "Pacman Found, Runing Away" << endl;
-		drawPassages = false;
-		RestorePathGhostRuning(pCurrent);
-	}
-	else //this is white 
-	{
-		pneig = new Cell(row, col, pCurrent);//abd pcurrent as parent
-		tempGrays.push_back(pneig);
-		pneig->setOldStatus(maze[row][col]);
-		maze[row][col] = GRAY;
-		grays.push_back(pneig);
-	}
-}
-
-void GhostRuningBFS(int GhostIndex)
-{
-	grays.clear();
-	drawPassages = true;
-	Cell* pCurrent = ghostsVector[GhostIndex];
-	grays.push_back(pCurrent);
-	findPathForPacFlag = false;
-	tempGrays.push_back(ghostsVector[GhostIndex]); // temp Grays will be reset to thier old value at the end
-	Pacman_cell.setOldStatus(SPACE);
-	int r, c;
-	while (!grays.empty() && drawPassages == true)
-	{
-		pCurrent = *grays.begin();
-		// remove pCurr from grays and paint it black
-		grays.erase(grays.begin());
-		r = pCurrent->getRow();
-		c = pCurrent->getCol();
-		maze[r][c] = BLACK;
-		//add non-visited neighbors
-		// up
-		if (maze[r + 1][c] == SPACE || maze[r + 1][c] == AMMO || maze[r + 1][c] == WARRIOR_TEAM_1)
-		{
-			checkNeighborGhostRuning(r + 1, c, pCurrent);
-		}
-		// down
-		if (drawPassages && maze[r - 1][c] == SPACE || maze[r - 1][c] == AMMO || maze[r - 1][c] == WARRIOR_TEAM_1)
-		{
-			checkNeighborGhostRuning(r - 1, c, pCurrent);
-		}
-		// left 
-		if (drawPassages && maze[r][c - 1] == SPACE || maze[r][c - 1] == AMMO || maze[r][c - 1] == WARRIOR_TEAM_1)
-		{
-			checkNeighborGhostRuning(r, c - 1, pCurrent);
-		}
-		// right
-		if (drawPassages && maze[r][c + 1] == SPACE || maze[r][c + 1] == AMMO || maze[r][c + 1] == WARRIOR_TEAM_1)
-		{
-			checkNeighborGhostRuning(r, c + 1, pCurrent);
-		}
-	}
-}
-
-#pragma endregion
-
-#pragma endregion
-
-#pragma region Pacman Logic
-
-#pragma region Pacman is Chasing Logic
-
-void RecoverTempPacmanChasing()
-{
-	int size = tempGrays.size();
-	bool ghostUpdated = false;
-	int pacmanRow = Pacman_cell.getRow();
-	int pacmanCol = Pacman_cell.getCol();
-	for (int i = 0; i < size; i++)
-	{
-		Cell* pCurrent = *tempGrays.begin();
-		tempGrays.erase(tempGrays.begin());
-		int row = pCurrent->getRow();
-		int col = pCurrent->getCol();
-		if (row == NextRow && col == NextCol)
-		{
-			Pacman_cell.setOldStatus(SPACE);
-			Pacman_cell.setCol(NextCol);
-			Pacman_cell.setRow(NextRow);
-			maze[NextRow][NextCol] = WARRIOR_TEAM_1;
-			continue;
-		}
-		maze[row][col] = pCurrent->getOldStatus();
-	}
-}
-
-void RestorePathPacman(Cell* pc) {
-
-	while (pc->getParent() != nullptr)
-	{
-		if (pc->getParent()->getParent() == nullptr)// Check if last iteration
-		{
-			NextRow = pc->getRow();
-			NextCol = pc->getCol();
-		}
-		maze[pc->getRow()][pc->getCol()] = PATH;
-		pc = pc->getParent();
-	}
-}
-
-void ResetGhostLocation()
-{
-	for (int i = 0; i < ghostsVector.size(); i < i++)
-	{
-		if (ghostsVector[i]->getRow() == NextRow && ghostsVector[i]->getCol() == NextCol) // This is the Ghost who was eaten
-		{
-			ghostsVector[i]->setRow(rooms[i + 1]->getCenter()->getRow());
-			ghostsVector[i]->setCol(rooms[i + 1]->getCenter()->getCol());
-			maze[Pacman_cell.getRow()][Pacman_cell.getCol()] = SPACE;
-			Pacman_cell.setOldStatus(SPACE);
-			Pacman_cell.setCol(NextCol);
-			Pacman_cell.setRow(NextRow);
-			maze[NextRow][NextCol] = WARRIOR_TEAM_1;
-			break;
-		}
-	}
-}
-
-void checkNeighborPacmanChasing(int row, int col, Cell* pCurrent)
-{
-	Cell* pneig;
-	if (maze[row][col] == LUGGAGE_TEAM_1)
-	{
-		drawPassages = false;
-		if (pCurrent->getParent() == nullptr) // Pacman is one step away from a LUGGAGE_TEAM_1
-		{
-			NextCol = col;
-			NextRow = row;
-			//Reset Ghost location
-			ResetGhostLocation();
-			cout << "Ghost Dead Will Respawn" << endl;
-		}
-		else
-		{
-			cout << "Ghost Found" << endl;
-			RestorePathPacman(pCurrent);
-		}
-
-	}
-	else //this is white 
-	{
-		pneig = new Cell(row, col, pCurrent);//abd pcurrent as parent
-		tempGrays.push_back(pneig);
-		pneig->setOldStatus(maze[row][col]);
-		maze[row][col] = GRAY;
-		grays.push_back(pneig);
-	}
-}
-
-void PacmanChasingBFS()
-{
-	grays.clear();
-	drawPassages = true;
-	Cell* pCurrent = &Pacman_cell;
-	grays.push_back(pCurrent);
-	findPathForPacFlag = false;
-	tempGrays.push_back(&Pacman_cell); // temp Grays will be reset to thier old value at the end
-	int r, c;
-	while (!grays.empty() && drawPassages == true)
-	{
-		pCurrent = *grays.begin();
-		// remove pCurr from grays and paint it black
-		grays.erase(grays.begin());
-		r = pCurrent->getRow();
-		c = pCurrent->getCol();
-		maze[r][c] = BLACK;
-		//add non-visited neighbors
-		// up
-		if (maze[r + 1][c] == SPACE || maze[r + 1][c] == LUGGAGE_TEAM_1 || maze[r + 1][c] == AMMO)
-		{
-			checkNeighborPacmanChasing(r + 1, c, pCurrent);
-		}
-		// down
-		if (drawPassages && maze[r - 1][c] == SPACE || maze[r - 1][c] == LUGGAGE_TEAM_1 || maze[r - 1][c] == AMMO)
-		{
-			checkNeighborPacmanChasing(r - 1, c, pCurrent);
-		}
-		// left 
-		if (drawPassages && maze[r][c - 1] == SPACE || maze[r][c - 1] == LUGGAGE_TEAM_1 || maze[r][c - 1] == AMMO)
-		{
-			checkNeighborPacmanChasing(r, c - 1, pCurrent);
-		}
-		// right
-		if (drawPassages && maze[r][c + 1] == SPACE || maze[r][c + 1] == LUGGAGE_TEAM_1 || maze[r][c + 1] == AMMO)
-		{
-			checkNeighborPacmanChasing(r, c + 1, pCurrent);
-		}
-	}
-}
-
-#pragma endregion
-
-#pragma region Pacman is Runing Logic
-
-void MovePacman()
-{
-	Cell* pc = pacmanNextCell;
-	while (pc->getParent() != nullptr)
-	{
-		if (pc->getParent()->getParent() == nullptr)
-		{
-			NextCol = pc->getCol();
-			NextRow = pc->getRow();
-			pc->deleteParent();
-			break;
-		}
-		pc = pc->getParent();
-	}
-
-	maze[Pacman_cell.getRow()][Pacman_cell.getCol()] = SPACE;
-	Pacman_cell.setCol(NextCol);
-	Pacman_cell.setRow(NextRow);
-	maze[NextRow][NextCol] = WARRIOR_TEAM_1;
-}
-
-void RecoverTempPacmanRuning()
-{
-	int size = tempGrays.size();
-	int pacmanRow = Pacman_cell.getRow();
-	int pacmanCol = Pacman_cell.getCol();
-	for (int i = 0; i < size; i++)
-	{
-		Cell* pCurrent = *tempGrays.begin();
-		tempGrays.erase(tempGrays.begin());
-		int row = pCurrent->getRow();
-		int col = pCurrent->getCol();
-		if (row == NextRow && col == NextCol)
-		{
-			Pacman_cell.setCol(NextCol);
-			Pacman_cell.setRow(NextRow);
-			maze[NextRow][NextCol] = WARRIOR_TEAM_1;
-			continue;
-		}
-		maze[row][col] = pCurrent->getOldStatus();
-	}
-}
-
-void RestorePathPacmanRuning(Cell* pc)
-{
-	pacmanNextCell = pc;
-	while (pc->getParent() != nullptr)
-	{
-		if (pc->getParent()->getParent() == nullptr)
-		{
-			NextCol = pc->getCol();
-			NextRow = pc->getRow();
-			maze[pc->getRow()][pc->getCol()] = PATH;
-			Cell* tmp = pc->getParent();
-			pc->deleteParent();
-			pc = tmp;
-			continue;
-		}
-		maze[pc->getRow()][pc->getCol()] = PATH;
-		pc = pc->getParent();
-	}
-
-}
-
-int checkDistanceFromGhost(Cell* pc, int gRow, int gCol)
-{
-	double status = pc->getOldStatus();
-	if (status == AMMO)
-		status = 0.4;
-	else if (status == SPACE)
-		status = 0.1;
-	return sqrt(pow(pc->getCol() - gCol, 2) +
-		pow(pc->getRow() - gRow, 2) * (1.0 * status));
-}
-
-void checkNeighborPacmanRuning(int row, int col, Cell* pCurrent)
-{
-	Cell* pneig;
-	if (maze[row][col] == LUGGAGE_TEAM_1)
-	{
-		int max = 0;
-		int size = grays.size();
-		for (int i = 0; i < size; i++)
-		{
-			Cell* cell = *grays.begin();
-			grays.erase(grays.begin());
-			int value = checkDistanceFromGhost(cell, row, col);
-			if (max < value)
-			{
-				max = value;
-				pCurrent = cell;
-			}
-		}
-		cout << "Ghost Found" << endl;
-		drawPassages = false;
-		RestorePathPacmanRuning(pCurrent);
-	}
-	else //this is white 
-	{
-		pneig = new Cell(row, col, pCurrent);//abd pcurrent as parent
-		tempGrays.push_back(pneig);
-		pneig->setOldStatus(maze[row][col]);
-		maze[row][col] = GRAY;
-		grays.push_back(pneig);
-	}
-}
-
-void PacmanRuningBFS()
-{
-	grays.clear();
-	drawPassages = true;
-	Cell* pCurrent = &Pacman_cell;
-	grays.push_back(pCurrent);
-	findPathForPacFlag = false;
-	tempGrays.push_back(&Pacman_cell); // temp Grays will be reset to thier old value at the end
-	Pacman_cell.setOldStatus(SPACE);
-	int r, c;
-	while (!grays.empty() && drawPassages == true)
-	{
-		pCurrent = *grays.begin();
-		// remove pCurr from grays and paint it black
-		grays.erase(grays.begin());
-		r = pCurrent->getRow();
-		c = pCurrent->getCol();
-		maze[r][c] = BLACK;
-		//add non-visited neighbors
-		// up
-		if (maze[r + 1][c] == SPACE || maze[r + 1][c] == AMMO || maze[r + 1][c] == LUGGAGE_TEAM_1)
-		{
-			checkNeighborPacmanRuning(r + 1, c, pCurrent);
-		}
-		// down
-		if (drawPassages && maze[r - 1][c] == SPACE || maze[r - 1][c] == AMMO || maze[r - 1][c] == LUGGAGE_TEAM_1)
-		{
-			checkNeighborPacmanRuning(r - 1, c, pCurrent);
-		}
-		// left 
-		if (drawPassages && maze[r][c - 1] == SPACE || maze[r][c - 1] == AMMO || maze[r][c - 1] == LUGGAGE_TEAM_1)
-		{
-			checkNeighborPacmanRuning(r, c - 1, pCurrent);
-		}
-		// right
-		if (drawPassages && maze[r][c + 1] == SPACE || maze[r][c + 1] == AMMO || maze[r][c + 1] == LUGGAGE_TEAM_1)
-		{
-			checkNeighborPacmanRuning(r, c + 1, pCurrent);
-		}
-	}
-}
-
-#pragma endregion
-
-#pragma endregion
 void MoveTeams(int teamNum, int enemyTeam)
 {
-	teams[teamNum]->PlayTurn();
+	teams[teamNum]->PlayTurn(teamNum);
 	//warrior 1
-	int target = teams[teamNum]->warrior1->GetTarget(teamNum);
- 	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[teamNum],teams[enemyTeam]);
- 	RecoverTempGraysGhosts(WARRIOR_TEAM_1+ teamNum, target, teams[teamNum],teams[enemyTeam], *teams[teamNum]->warrior1);
+	int target = teams[teamNum]->warrior1->GetTarget();
+ 	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1->getBadJudgment(), teams[teamNum]->warrior1);
+ 	RecoverTempGraysGhosts(WARRIOR_TEAM_1+ teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1);
 	//warrior 2
-	target = teams[teamNum]->warrior2->GetTarget(teamNum);
-	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[teamNum],teams[enemyTeam]);
-  	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[teamNum],teams[enemyTeam], *teams[teamNum]->warrior2);
+	target = teams[teamNum]->warrior2->GetTarget();
+	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2->getBadJudgment(), teams[teamNum]->warrior2);
+  	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2);
 	////luggage 
-	/*teams[teamNum]->luggageMove = true;
+	teams[teamNum]->luggageMove = true;
 	target = WARRIOR_TEAM_1 + teamNum;
-	AStarSearch(target, teams[teamNum]->luggage->getLocation(),teams[teamNum], teams[teamNum]);
-	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum],teams[teamNum], *teams[teamNum]->luggage);*/
+	AStarSearch(target, teams[teamNum]->luggage->getLocation(),teams[teamNum], teams[teamNum], teams[teamNum]->luggage->getBadJudgment(), teams[teamNum]->luggage);
+	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum],teams[teamNum], teams[teamNum]->luggage);
 }
 void gameIteration()
 {
 	if (startGame == 1)
 	{
+		/*if (flag)
+		{
+			
+			teams[0]->warrior1->setHp(10);
+			flag = false;
+		}*/
+		printf("Warrior 1 mode: %d\n", teams[0]->warrior1->isChasing);
 		MoveTeams(0, 1);
 		MoveTeams(1, 0);
-		
-		
-		
-		
-
-				/*if (ghostsVector[i]->Execute())
-				{
-					GhostAStar(i);
-					RecoverTempGraysGhosts(i);
-				}
-				else
-				{
-					if (pacManNextMoveTimer == 0)
-					{
-						GhostRuningBFS(i);
-						RecoverTempGhostRuning(i);
-					}
-					else {
-						if (pacmanNextCell->getParent() == nullptr)
-						{
-							GhostRuningBFS(i);
-							RecoverTempGhostRuning(i);
-							pacManNextMoveTimer = 1;
-						}
-						else
-							MoveGhost(i);
-					}
-				}*/
 		sleep_for(milliseconds(50));
 	}
 	else
 		return;
-
 }
 
 #pragma endregion
