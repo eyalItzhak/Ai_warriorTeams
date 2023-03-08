@@ -176,11 +176,8 @@ void SetUpTeams()
 	Team* team = new Team(startHealth, startAmmo);
 	teams.push_back(team);
 	team->warrior1->setLocation(PlaceItem(WARRIOR_TEAM_1, startRoom));
-	team->warrior1->getLocation()->setOldStatus(SPACE);
 	team->warrior2->setLocation(PlaceItem(WARRIOR_TEAM_1, startRoom));
-	team->warrior2->getLocation()->setOldStatus(SPACE);
 	team->luggage->setLocation(PlaceItem(LUGGAGE_TEAM_1, startRoom));
-	team->luggage->getLocation()->setOldStatus(SPACE);
 	do
 	{
 		secondStartRoom = rand() % roomAmount;
@@ -188,11 +185,8 @@ void SetUpTeams()
 	team = new Team(startHealth, startAmmo);
 	teams.push_back(team);
 	team->warrior1->setLocation(PlaceItem(WARRIOR_TEAM_2, secondStartRoom));
-	team->warrior1->getLocation()->setOldStatus(SPACE);
 	team->warrior2->setLocation(PlaceItem(WARRIOR_TEAM_2, secondStartRoom));
-	team->warrior2->getLocation()->setOldStatus(SPACE);
 	team->luggage->setLocation(PlaceItem(LUGGAGE_TEAM_2, secondStartRoom));
-	team->luggage->getLocation()->setOldStatus(SPACE);
 }
 Cell* PlaceItem(int type, int room)
 {
@@ -207,6 +201,7 @@ Cell* PlaceItem(int type, int room)
 			validLocation = true;
 			cell->setRow(xPos);
 			cell->setCol(yPos);
+			cell->setOldStatus(SPACE);
 		}
 	}
 	return cell;
@@ -447,9 +442,10 @@ void RecoverTempGraysGhosts(int source, int target, Team* sourceTeam,Team* targe
 			if (pCurrent->getOldStatus() == source)
 				continue;
 			maze[charcter->getLocation()->getRow()][charcter->getLocation()->getCol()] = SPACE;
-			charcter->getLocation()->setOldStatus(pCurrent->getOldStatus());
+			//charcter->getLocation()->setOldStatus(pCurrent->getOldStatus());
 			charcter->getLocation()->setCol(col);
 			charcter->getLocation()->setRow(row);
+			charcter->getLocation()->setOldStatus(source);
 			maze[row][col] = source;
 			continue;
 		}
@@ -669,25 +665,25 @@ void MoveTeams(int teamNum, int enemyTeam)
  	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1->getBadJudgment(), teams[teamNum]->warrior1);
  	RecoverTempGraysGhosts(WARRIOR_TEAM_1+ teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1);
 	//warrior 2
-	/*target = teams[teamNum]->warrior2->GetTarget();
+	target = teams[teamNum]->warrior2->GetTarget();
 	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2->getBadJudgment(), teams[teamNum]->warrior2);
-  	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2);*/
+  	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2);
 	////luggage 
-	/*teams[teamNum]->luggageMove = true;
+	teams[teamNum]->luggageMove = true;
 	target = WARRIOR_TEAM_1 + teamNum;
 	AStarSearch(target, teams[teamNum]->luggage->getLocation(),teams[teamNum], teams[teamNum], teams[teamNum]->luggage->getBadJudgment(), teams[teamNum]->luggage);
-	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum],teams[teamNum], teams[teamNum]->luggage);*/
+	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum],teams[teamNum], teams[teamNum]->luggage);
 }
 void gameIteration()
 {
 	if (startGame == 1)
 	{
-		if (flag)
+		/*if (flag)
 		{
 			
 			teams[0]->warrior1->setHp(10);
 			flag = false;
-		}
+		}*/
 		printf("Warrior 1 mode: %d\n", teams[0]->warrior1->isChasing);
 		MoveTeams(0, 1);
 		MoveTeams(1, 0);
