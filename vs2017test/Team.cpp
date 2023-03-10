@@ -186,8 +186,8 @@ double Team::calculateAngle(int startX, int startY, int endX, int endY) {
 void Team::PlayTurn()
 {
 	luggageMove = false;
-	warrior1->PlayTurn();
-	warrior2->PlayTurn();
+	warrior1->PlayTurn(teamNum);
+	warrior2->PlayTurn(teamNum);
 	luggage->PlayTurn(warrior1,warrior2);
 }
 

@@ -12,7 +12,7 @@ protected:
 	Cell* location;
 	State* state;
 	int type;
-	
+	float badJudgment;
 
 public:
 	void takingDamage(int damage);
@@ -31,6 +31,14 @@ public:
 	void setState(State* st)
 	{
 		state = st;
+	}
+	void setBadJudgment(float jud)
+	{
+		badJudgment = jud;
+	}
+	float getBadJudgment() 
+	{
+		return badJudgment;
 	}
 	void setLocation(Cell* location);
 	bool isChasing = false;
