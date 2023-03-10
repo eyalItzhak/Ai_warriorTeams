@@ -37,7 +37,7 @@ vector<Cell*> grays;
 int supplyPerRoomAmount = 2;
 int startHealth = 100;
 int startAmmo = 100;
-int supplyBuff = 30;
+int supplyBuff = 50;
 // Game global variables
 Cell Pacman_cell;
 vector<Cell*> ammoVector;
@@ -728,7 +728,6 @@ Bullet* fireEnemy(int bulletPrice ,Bullet* myBullet, Warrior* warrior, Team* hos
 Grenade* trowGrenade(int granaderPrice ,Grenade* myGrenade, Warrior* warrior, Team* hostileTeam, float wereToShot) {
 
 	if (!myGrenade) {
-		printf("no grandade crete one \n");
 		if (warrior->getAmmo() >= granaderPrice) {
 	    warrior->setAmmo(warrior->getAmmo() - granaderPrice);
 		
@@ -738,7 +737,6 @@ Grenade* trowGrenade(int granaderPrice ,Grenade* myGrenade, Warrior* warrior, Te
         }
 	}
 	else {
-		printf("bullet exp\n");
 		myGrenade->explode(maze, hostileTeam);
 		if (myGrenade->isExplodeStop()) {
 			myGrenade = nullptr;
@@ -757,12 +755,12 @@ void SeekAndMove(int target,int teamNum,int srcType ,Team * fraindlyTeam ,Team *
 void WarriorMove(int teamNum ,int warriorNum,Team *hostileTeam, Team* fraindlyTeam ,Warrior * fraindlyWarrior ,Bullet * myBullet, Grenade * myGrenade) {
 
 	int myLimit = 90;
-	int grandePrice = 70;
-	int bulletPrice = 25;
+	int grandePrice = 10;
+	int bulletPrice = 5;
 	int target = fraindlyWarrior->GetTarget();
 	float Distance_Warrior_ToEnemy = hostileTeam->DistanceToTeam(fraindlyWarrior->getLocation());
 	float fireSlution_Warrior_ToEnemy = hostileTeam->FireSolution(fraindlyWarrior->getLocation(), maze);
-	if (fraindlyWarrior->isChasing) {
+	if (fraindlyWarrior->isChasing || myBullet != nullptr || myGrenade != nullptr) {
 		if (Distance_Warrior_ToEnemy > 10 || fireSlution_Warrior_ToEnemy == -1) {
 			SeekAndMove(target, teamNum, WARRIOR_TEAM_1, fraindlyTeam, hostileTeam, fraindlyWarrior);
 		}
@@ -800,19 +798,13 @@ void WarriorMove(int teamNum ,int warriorNum,Team *hostileTeam, Team* fraindlyTe
 #pragma region gameLogic
 void MoveTeams(int teamNum, int enemyTeam)
 {
-	int target;
-	int myLimit = 90;
-
-	int grandePrice = 25;
-	int bulletPrice = 25;
-
 	Team* fraindlyTeam = teams[teamNum];
 	Team* hostileTeam = teams[enemyTeam];
 	fraindlyTeam->PlayTurn(teamNum);
 
 	//warrior 1
 	WarriorMove(teamNum,0, hostileTeam, fraindlyTeam, fraindlyTeam->warrior1, bullet_warrior_1_team[teamNum], grenade_warrior_1_team[teamNum]);
-
+	printf("Team %d Warrior has ammo: %d\n", teamNum, fraindlyTeam->warrior1->getAmmo());
 
 	//warrior 2
 	//WarriorMove(teamNum,1, hostileTeam, fraindlyTeam, fraindlyTeam->warrior2, bullet_warrior_2_team[teamNum], grenade_warrior_2_team[teamNum]);
@@ -831,13 +823,6 @@ void gameIteration()
 {
 	if (startGame == 1)
 	{
-		/*if (flag)
-		{
-			
-			teams[0]->warrior1->setHp(10);
-			flag = false;
-		}*/
-		printf("Warrior 1 mode: %d\n", teams[0]->warrior1->isChasing);
 		MoveTeams(0, 1);
 		MoveTeams(1, 0);
 		sleep_for(milliseconds(50));

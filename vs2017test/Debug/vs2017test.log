@@ -1,12 +1,3 @@
-﻿  main.cpp
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(98,31): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(103,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(194,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(196,21): warning C4018: '<': signed/unsigned mismatch
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(150,12): warning C4101: 'random': unreferenced local variable
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(451,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(464,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(657,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(803,6): warning C4101: 'target': unreferenced local variable
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(900,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
-  vs2017test.vcxproj -> C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\Debug\vs2017test.exe
+﻿  Warrior.cpp
+D:\git\Ai_warriorTeams\vs2017test\Warrior.cpp(15,19): warning C4305: '=': truncation from 'double' to 'float'
+  vs2017test.vcxproj -> D:\git\Ai_warriorTeams\Debug\vs2017test.exe

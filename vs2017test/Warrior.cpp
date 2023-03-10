@@ -25,10 +25,12 @@ void Warrior::PlayTurn(int myTeam)
 		{
 			needHp = true;
 			getState()->MakeTransition(this);
+			return;
 		}
 		if (ammo == 0)
 		{
 			getState()->MakeTransition(this);
+			return;
 		}
 		if (myTeam == 0)
 			target = WARRIOR_TEAM_2;
@@ -40,23 +42,21 @@ void Warrior::PlayTurn(int myTeam)
 		if (hp < MIN_HP)
 		{
 			target = HP;
-			return;
 		}
-			
+		else
+		{
+			needHp = false;
+		}
 		if (ammo < MIN_AMMO)
 		{
 			target = AMMO;
-			return;
 		}
-		if (hp >= MIN_HP)
-		{
-			needHp = false;
-			getState()->MakeTransition(this);
-			return;
-		}
-		if (ammo >= MIN_AMMO)
+		else
 		{
 			needAmmo = false;
+		}
+		if (!needAmmo && !needHp)
+		{
 			getState()->MakeTransition(this);
 			return;
 		}
