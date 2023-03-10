@@ -3,6 +3,7 @@
 #include "glut.h"
 #include <stdio.h>
 
+
 Bullet::Bullet()
 {
 }
@@ -14,22 +15,32 @@ Bullet::Bullet(double xx, double yy, double alpha)
 	angle = alpha;
 	dirx = cos(alpha);
 	diry = sin(alpha);
-	printf("x %f y %f \n", x, y);
+	hitTarget = false;
 }
 
-bool Bullet::fire(int maze[MSZ][MSZ])
+bool Bullet::fire(int maze[MSZ][MSZ] ,Team * target)
 {
-	if (maze[(int)y][(int)x] == WALL) return false;
+	if (maze[(int)y][(int)x] == WALL) {
+		hitTarget = true;
+		return false;
+	}
+		
+
+	if (maze[(int)y][(int)x] == target->getWarriorsType() && hitTarget==false){
+		hitTarget = true;
+		target->TeamMemeberTakeDamageEvent((int)x, (int)y, (10)-(0.1* distance));
+		return false;
+	}	
 
 	x += dirx * STEP; // move bullet by STEP to direction (dirx,dity)
 	y += diry * STEP;
+	distance = distance + 1;
 
 	return true;
 }
 
 void Bullet::draw()
 {
-	printf("draw x = %f y = %f\n" ,x,y);
 	double delta = 0.5;
 	glColor3d(0, 0, 0); // black
 	glBegin(GL_POLYGON);
@@ -51,6 +62,11 @@ void Bullet::SimulateFire(int maze[MSZ][MSZ], double security_map[MSZ][MSZ])
 		y += diry * STEP;
 
 	}
+}
+
+bool Bullet::isBulletHit()
+{
+	return hitTarget;
 }
 
 

@@ -12,26 +12,48 @@ Grenade::Grenade(double xx, double yy)
 
 void Grenade::draw()
 {
-	for (int i = 0; i < NUM_BULLETS; i++)
-		bullets[i]->draw();
+	for (int i = 0; i < NUM_BULLETS; i++) {
+		if (bullets[i] != nullptr) {
+
+		Bullet *currentBullet = bullets[i];
+		if (currentBullet->isBulletHit() == false) {
+			currentBullet->draw();
+		}
+	
+		}
+		
+	}
+		
 
 }
 
-bool Grenade::explode(int maze[MSZ][MSZ])
+bool Grenade::explode(int maze[MSZ][MSZ] , Team* target)
 {
 	bool finished = true;
 	for (int i = 0; i < NUM_BULLETS; i++)
-		if (bullets[i]->fire(maze))
+		if (bullets[i]->fire(maze, target))
 			finished = false;
 
 	return !finished;
 }
 
-void Grenade::SimulateExplosion(int maze[MSZ][MSZ], double security_map[MSZ][MSZ])
+void Grenade::SimulateExplosion(int maze[MSZ][MSZ], double security_map[MSZ][MSZ],Team * target)
 {
 	for (int i = 0; i < NUM_BULLETS; i++)
-		bullets[i]->fire(maze);
+		bullets[i]->fire(maze, target);  //wall it target temp...
 
 	//was bullets[i]->SimulateFire(maze, security_map);
 
+}
+
+bool Grenade::isExplodeStop()
+{
+	for (int i = 0; i < NUM_BULLETS; i++)
+		if (bullets[i]->isBulletHit() == false) 
+		{
+			return false;
+		}
+		
+	   return true;
+		
 }

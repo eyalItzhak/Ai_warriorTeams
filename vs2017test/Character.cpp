@@ -34,3 +34,23 @@ Character::Character(int h, int a, State* s) {
     {
         location = loc;
     }
+
+    void Character::takingDamage(int damage) {
+        hp = hp - damage;
+        printf("hp %d \n", hp);
+    }
+
+    int Character::getType() {
+        return type;
+    }
+
+    void Character::setType(int newType) {
+        type = newType;
+    }
+
+    bool Character::isDead() {
+        if (hp < 0) {
+            return true;
+        }
+        return false;
+    }

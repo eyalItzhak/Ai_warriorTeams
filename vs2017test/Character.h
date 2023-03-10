@@ -15,6 +15,8 @@ protected:
 	
 
 public:
+	void takingDamage(int damage);
+	bool isDead();
 	Character();
 	Character(int h, int a, State* state);
 	int getHp();
@@ -35,6 +37,7 @@ public:
 	bool isAssisting = false;
 	int getAmmo();
 	int getType();
+	void setType(int newType);
 	void setHp(int h);
 	void setAmmo(int a);
 	void PlayTurn();

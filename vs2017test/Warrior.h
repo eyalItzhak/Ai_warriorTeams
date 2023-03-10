@@ -2,6 +2,8 @@
 #include "Character.h"
 #include "Enum.h"
 #include "ChasingState.h"
+
+
 class Warrior: public Character
 {
 public:
