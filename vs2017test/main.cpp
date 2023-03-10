@@ -748,40 +748,40 @@ void MoveTeams(int teamNum, int enemyTeam)
 	int target;
 	int myLimit = 90;
 	Team* fraindlyTeam = teams[teamNum];
-	Team * hostileTeam = teams[enemyTeam];
-	fraindlyTeam->PlayTurn();
+	Team* hostileTeam = teams[enemyTeam];
+	fraindlyTeam->PlayTurn(teamNum);
 
 	//warrior 1
 
 	float Distance_Warrior1_ToEnemy = hostileTeam->DistanceToTeam(fraindlyTeam->warrior1->getLocation());
-	float fireSlution_Warrior1_ToEnemy = hostileTeam->FireSolution(fraindlyTeam->warrior1->getLocation() , maze);
+	float fireSlution_Warrior1_ToEnemy = hostileTeam->FireSolution(fraindlyTeam->warrior1->getLocation(), maze);
 
 	if (Distance_Warrior1_ToEnemy > 10 || fireSlution_Warrior1_ToEnemy == -1) {
-    target = fraindlyTeam->warrior1->GetTarget(teamNum);
- 	AStarSearch(target, fraindlyTeam->warrior1->getLocation(), fraindlyTeam, hostileTeam);
- 	RecoverTempGraysGhosts(WARRIOR_TEAM_1+ teamNum, target, fraindlyTeam, hostileTeam, *fraindlyTeam->warrior1);
+		target = fraindlyTeam->warrior1->GetTarget();
+		AStarSearch(target, fraindlyTeam->warrior1->getLocation(), fraindlyTeam, hostileTeam, fraindlyTeam->warrior1->getBadJudgment(), fraindlyTeam->warrior1);
+		RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, fraindlyTeam, hostileTeam, fraindlyTeam->warrior1);
 	}
 	else {
 		int random_number = rand() % 100 + 1;
-		if ((random_number < myLimit && grenade_warrior_1_team[teamNum] == nullptr) || warrior_1_team[teamNum]!=nullptr ) {
+		if ((random_number < myLimit && grenade_warrior_1_team[teamNum] == nullptr) || warrior_1_team[teamNum] != nullptr) {
 			fraindlyTeam->warrior1->setAmmo(fraindlyTeam->warrior1->getAmmo() - 1);
 			warrior_1_team[teamNum] = fireEnemy(warrior_1_team[teamNum], fraindlyTeam->warrior1, hostileTeam, fireSlution_Warrior1_ToEnemy);
 		}
-		if ((random_number >= myLimit && warrior_1_team[teamNum] == nullptr)|| (grenade_warrior_1_team[teamNum]!= nullptr) ) {
+		if ((random_number >= myLimit && warrior_1_team[teamNum] == nullptr) || (grenade_warrior_1_team[teamNum] != nullptr)) {
 			fraindlyTeam->warrior1->setAmmo(fraindlyTeam->warrior1->getAmmo() - 10);
 			grenade_warrior_1_team[teamNum] = trowGrenade(grenade_warrior_1_team[teamNum], fraindlyTeam->warrior1, hostileTeam, fireSlution_Warrior1_ToEnemy);
 		}
-		
+
 	}
-	
+
 	//warrior 2
 
 	float Distance_Warrior2_ToEnemy = hostileTeam->DistanceToTeam(fraindlyTeam->warrior2->getLocation());
 	float fireSlution_Warrior2_ToEnemy = hostileTeam->FireSolution(fraindlyTeam->warrior2->getLocation(), maze);
 	if (Distance_Warrior2_ToEnemy > 10 || fireSlution_Warrior2_ToEnemy == -1) {
-		target = fraindlyTeam->warrior2->GetTarget(teamNum);
-		AStarSearch(target, fraindlyTeam->warrior2->getLocation(), fraindlyTeam, hostileTeam);
-		RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, fraindlyTeam, hostileTeam, *fraindlyTeam->warrior2);
+		target = fraindlyTeam->warrior2->GetTarget();
+		AStarSearch(target, fraindlyTeam->warrior2->getLocation(), fraindlyTeam, hostileTeam, fraindlyTeam->warrior2->getBadJudgment(), fraindlyTeam->warrior2);
+		RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, fraindlyTeam, hostileTeam, fraindlyTeam->warrior2);
 	}
 	else {
 		int random_number = rand() % 100 + 1;
@@ -794,23 +794,33 @@ void MoveTeams(int teamNum, int enemyTeam)
 			grenade_warrior_2_team[teamNum] = trowGrenade(grenade_warrior_2_team[teamNum], fraindlyTeam->warrior2, hostileTeam, fireSlution_Warrior1_ToEnemy);
 		}
 
-void MoveTeams(int teamNum, int enemyTeam)
-{
-	teams[teamNum]->PlayTurn(teamNum);
-	//warrior 1
-	int target = teams[teamNum]->warrior1->GetTarget();
- 	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1->getBadJudgment(), teams[teamNum]->warrior1);
- 	RecoverTempGraysGhosts(WARRIOR_TEAM_1+ teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1);
-	//warrior 2
-	target = teams[teamNum]->warrior2->GetTarget();
-	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2->getBadJudgment(), teams[teamNum]->warrior2);
-  	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2);
+	}
+
 	////luggage 
-	teams[teamNum]->luggageMove = true;
-	target = WARRIOR_TEAM_1 + teamNum;
-	AStarSearch(target, teams[teamNum]->luggage->getLocation(),teams[teamNum], teams[teamNum], teams[teamNum]->luggage->getBadJudgment(), teams[teamNum]->luggage);
-	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum],teams[teamNum], teams[teamNum]->luggage);
+   	teams[teamNum]->luggageMove = true;
+  	target = WARRIOR_TEAM_1 + teamNum;
+  	AStarSearch(target, teams[teamNum]->luggage->getLocation(),teams[teamNum], teams[teamNum], teams[teamNum]->luggage->getBadJudgment(), teams[teamNum]->luggage);
+  	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum],teams[teamNum], teams[teamNum]->luggage);
 }
+
+//void MoveTeams(int teamNum, int enemyTeam)
+//{
+//	teams[teamNum]->PlayTurn(teamNum);
+//	//warrior 1
+//	int target = teams[teamNum]->warrior1->GetTarget();
+// 	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1->getBadJudgment(), teams[teamNum]->warrior1);
+// 	RecoverTempGraysGhosts(WARRIOR_TEAM_1+ teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1);
+//	//warrior 2
+//	target = teams[teamNum]->warrior2->GetTarget();
+//	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2->getBadJudgment(), teams[teamNum]->warrior2);
+//  	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2);
+//	////luggage 
+//	teams[teamNum]->luggageMove = true;
+//	target = WARRIOR_TEAM_1 + teamNum;
+//	AStarSearch(target, teams[teamNum]->luggage->getLocation(),teams[teamNum], teams[teamNum], teams[teamNum]->luggage->getBadJudgment(), teams[teamNum]->luggage);
+//	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum],teams[teamNum], teams[teamNum]->luggage);
+//}
+
 void gameIteration()
 {
 	if (startGame == 1)
@@ -897,7 +907,7 @@ void main(int argc, char* argv[])
 	
 	glutAddMenuEntry("fire bullet", 1);
 	glutAddMenuEntry("Throw grenade", 2);
-     glutAddMenuEntry("Start Game", 3);
+    glutAddMenuEntry("Start Game", 3);
 	glutAttachMenu(GLUT_RIGHT_BUTTON); // attach to right mouse button
 
 	init();
