@@ -1,3 +1,5 @@
+#pragma region includes
+
 #include "glut.h"
 #include <time.h>
 #include <iostream>
@@ -9,21 +11,23 @@
 #include "ChasingState.h"
 #include "Team.h"
 #include "Enum.h"
+#include "bullet.h"
+#include "Grenade.h"
 using namespace std;
 using namespace std::this_thread; // sleep_for, sleep_until
 using namespace std::chrono; // nanoseconds, system_clock, seconds
-
-#pragma region Global Variables
-
+#pragma endregion
+#pragma region globalAndParams
 // Maze global variables
-const int MSZ = 100;
 int maze[MSZ][MSZ];
 bool drawPassages = true;
 
 // Type of frontend elements
-
+const int W = 700; // window Width
+const int H = 700; // window Height
 
 //Room global variables
+
 int roomAmount = 0;
 vector<Room*> rooms;
 Cell target_cell;
@@ -48,11 +52,24 @@ bool findPathForPacFlag = false;
 bool ScaredGhostsFlag = false;
 int pacManNextMoveTimer = 0;
 Cell* pacmanNextCell;
-bool flag = true;
+
+bool fireBulet = false, throwGrenade = false;
+Bullet* pb = nullptr;
+Grenade* pg = nullptr;
+
+Bullet* bullet_warrior_1_team[2] = {nullptr,nullptr};
+Bullet* bullet_warrior_2_team[2] = { nullptr,nullptr };
+
+Grenade* grenade_warrior_1_team[2] = { nullptr,nullptr };
+Grenade* grenade_warrior_2_team[2] = { nullptr,nullptr };
+
+
+
+double security_map[MSZ][MSZ] = { 0 };
+
+
 #pragma endregion
-
-#pragma region Functions Declarition 
-
+#pragma region declration
 void InitMaze();
 void ShowMaze();
 float cellsDistance(Cell* dest, Cell* src);
@@ -64,14 +81,17 @@ void RecoverTempGrays();
 void SetUpSupply(int type);
 Cell* PlaceItem(int type, int room);
 void SetUpTeams();
-// Game started functions
 void gameIteration();
 void AStarSearch(int target, Cell* currentLocation, Team* sourceTeam,Team* targetTeam, float badJudgmentFactor, Character* character);
-void PacmanRuningBFS();
+
+
+void mouse(int button, int state, int x, int y);
+
+bool haseShot = false;
 
 #pragma endregion
 
-#pragma region Maze Init, ShowMaze and display
+#pragma region mapCreate
 
 void init()
 {
@@ -84,17 +104,47 @@ void init()
 
 	InitMaze();
 }
-
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT); // clean frame buffer
 
-
 	ShowMaze();
+
+	if (bullet_warrior_1_team[0] != nullptr) {
+		bullet_warrior_1_team[0]->draw();
+	}
+	if (bullet_warrior_2_team[0] != nullptr) {
+		bullet_warrior_2_team[0]->draw();
+	}
+	if (bullet_warrior_1_team[1] != nullptr) {
+		bullet_warrior_1_team[1]->draw();
+	}
+	if (bullet_warrior_2_team[1] != nullptr) {
+		bullet_warrior_2_team[1]->draw();
+	}
+
+
+	if (grenade_warrior_1_team[0] != nullptr) {
+		grenade_warrior_1_team[0]->draw();
+	}
+	if (grenade_warrior_2_team[0] != nullptr) {
+		grenade_warrior_2_team[0]->draw();
+	}
+	if (grenade_warrior_1_team[1] != nullptr) {
+		grenade_warrior_1_team[1]->draw();
+	}
+	if (grenade_warrior_2_team[1] != nullptr) {
+		grenade_warrior_2_team[1]->draw();
+	}
+
+
+	if (pb != nullptr)
+		pb->draw();
+	if (pg != nullptr)
+		pg->draw();
 
 	glutSwapBuffers(); // show all
 }
-
 void InitMaze()
 {
 	int i, j, random;
@@ -110,6 +160,10 @@ void InitMaze()
 	for (i = 1; i < MSZ - 1; i++)
 		for (j = 1; j < MSZ - 1; j++)
 		{
+
+			
+
+
 			if (rand() % 10 == roomAmount) // mostly WALLs
 			{
 				int size = rand() % 30 + 10; // min size of a room is 10 by 10 (max 40x40); 
@@ -154,16 +208,7 @@ void InitMaze()
 			}
 		}
 	}
-	/*maze[rooms[0]->getCenter()->getRow()][rooms[0]->getCenter()->getCol()] = WARRIOR_TEAM_1;
-	Pacman_cell = Cell(rooms[0]->getCenter()->getRow(), rooms[0]->getCenter()->getCol(), NULL);
-	Pacman_cell.setOldStatus(SPACE);
-	for (int i = 1; i < rooms.size() && i <= 3; i++)
-	{
-		Cell* ghost = new Cell(rooms[i]->getCenter()->getRow(), rooms[i]->getCenter()->getCol(), NULL);
-		ghost->setOldStatus(SPACE);
-		maze[ghost->getRow()][ghost->getCol()] = LUGGAGE_TEAM_1;
-		ghostsVector.push_back(ghost);
-	}*/
+
 	SetUpTeams();
 	SetUpSupply(AMMO);
 	SetUpSupply(HP);
@@ -175,8 +220,11 @@ void SetUpTeams()
 	startRoom = rand() % roomAmount;
 	Team* team = new Team(startHealth, startAmmo);
 	teams.push_back(team);
+
+	team->warrior1->setType(WARRIOR_TEAM_1);
 	team->warrior1->setLocation(PlaceItem(WARRIOR_TEAM_1, startRoom));
 	team->warrior2->setLocation(PlaceItem(WARRIOR_TEAM_1, startRoom));
+	team->luggage->setType(LUGGAGE_TEAM_1);
 	team->luggage->setLocation(PlaceItem(LUGGAGE_TEAM_1, startRoom));
 	do
 	{
@@ -184,8 +232,11 @@ void SetUpTeams()
 	} while (startRoom== secondStartRoom);
 	team = new Team(startHealth, startAmmo);
 	teams.push_back(team);
+
+	team->warrior1->setType(WARRIOR_TEAM_2);
 	team->warrior1->setLocation(PlaceItem(WARRIOR_TEAM_2, secondStartRoom));
 	team->warrior2->setLocation(PlaceItem(WARRIOR_TEAM_2, secondStartRoom));
+	team->luggage->setType(LUGGAGE_TEAM_2);
 	team->luggage->setLocation(PlaceItem(LUGGAGE_TEAM_2, secondStartRoom));
 }
 Cell* PlaceItem(int type, int room)
@@ -222,8 +273,6 @@ void SetUpSupply(int type)
 		}
 	}
 }
-
-//Iterate over the maze array and set the color according to it's value
 void ShowMaze()
 {
 	int i, j;
@@ -281,25 +330,6 @@ void ShowMaze()
 			glEnd();
 		}
 }
-
-// Restore Room Wall and Paths to their previous state
-void RecoverTempGrays()
-{
-	int size = tempGrays.size();
-	for (int i = 0; i < size; i++)
-	{
-		Cell* pCurrent = *tempGrays.begin();
-		tempGrays.erase(tempGrays.begin());
-		int row = pCurrent->getRow();
-		int col = pCurrent->getCol();
-		if (maze[row][col] == PATH)
-			maze[row][col] = SPACE;
-		else
-			maze[row][col] = pCurrent->getOldStatus();
-	}
-}
-
-// A* and BFS by distance connect room to indexed room 
 void ConnectRooms(int from, int to)
 {
 	Cell* pCurrent;
@@ -339,7 +369,27 @@ void ConnectRooms(int from, int to)
 				CheckNeighborDistance(pCurrent, row, col - 1);
 	}
 }
+#pragma endregion
+//Iterate over the maze array and set the color according to it's value
 
+// Restore Room Wall and Paths to their previous state
+#pragma region CharcterNavgation
+void RecoverTempGrays()
+{
+	int size = tempGrays.size();
+	for (int i = 0; i < size; i++)
+	{
+		Cell* pCurrent = *tempGrays.begin();
+		tempGrays.erase(tempGrays.begin());
+		int row = pCurrent->getRow();
+		int col = pCurrent->getCol();
+		if (maze[row][col] == PATH)
+			maze[row][col] = SPACE;
+		else
+			maze[row][col] = pCurrent->getOldStatus();
+	}
+}
+// A* and BFS by distance connect room to indexed room 
 // Restore path
 void RestorePath(Cell* pc)
 {
@@ -349,7 +399,6 @@ void RestorePath(Cell* pc)
 		pc = pc->getParent();
 	}
 }
-
 //// Check distance
 void CheckNeighborDistance(Cell* pCurrent, int row, int col)
 {
@@ -370,7 +419,6 @@ void CheckNeighborDistance(Cell* pCurrent, int row, int col)
 
 	}
 }
-
 //// Insert a new cell by prioritizing his distance from destination
 void sortedInsert(Cell* toInsert)
 {
@@ -390,7 +438,6 @@ void sortedInsert(Cell* toInsert)
 	}
 	roomGrays.push_back(toInsert);
 }
-
 //// Calculate distance between 2 Cells
 float cellsDistance(Cell* dest, Cell* src)
 {
@@ -405,7 +452,6 @@ float cellsDistance(Cell* dest, Cell* src)
 		pow(dest->getRow() - src->getRow(), 2) * (1.0 * status));
 }
 
-#pragma endregion
 
 #pragma region Game Started
 
@@ -656,24 +702,131 @@ void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targe
 				CheckNeighborDistanceGhosts(pCurrent, row, col - 1, target, sourceTeam, judgment, character);
 	}
 }
+#pragma endregion
 
+Bullet* fireEnemy(int bulletPrice ,Bullet* myBullet, Warrior* warrior, Team* hostileTeam, float wereToShot) {
+	if (!myBullet) {
+		if (warrior->getAmmo() >= bulletPrice) {
+			warrior->setAmmo(warrior->getAmmo() - bulletPrice);
+			Cell* fireLocation = warrior->getLocation();
+			int random_deviation = std::rand() % 21 - 10; //-10  TO 10
+			myBullet = new Bullet(fireLocation->getCol(), fireLocation->getRow(), ((90 - (wereToShot)) + random_deviation) * PI / 180.0);
+		}
+	}
+	else {
+		/*	printf("bullet fly");*/
+		myBullet->fire(maze, hostileTeam);
+		if (myBullet->isBulletHit()) {
+			myBullet = nullptr;
+		}
+	}
+	return myBullet;
+
+}
+
+
+Grenade* trowGrenade(int granaderPrice ,Grenade* myGrenade, Warrior* warrior, Team* hostileTeam, float wereToShot) {
+
+	if (!myGrenade) {
+		printf("no grandade crete one \n");
+		if (warrior->getAmmo() >= granaderPrice) {
+	    warrior->setAmmo(warrior->getAmmo() - granaderPrice);
+		
+		double row = hostileTeam->rowGreandeLocation;
+		double col = hostileTeam->colGreandeLocation;
+		myGrenade = new Grenade(col, row);
+        }
+	}
+	else {
+		printf("bullet exp\n");
+		myGrenade->explode(maze, hostileTeam);
+		if (myGrenade->isExplodeStop()) {
+			myGrenade = nullptr;
+		}
+	}
+	return myGrenade;
+}
+
+
+
+void SeekAndMove(int target,int teamNum,int srcType ,Team * fraindlyTeam ,Team * hostileTeam , Character* fraindlyTeamCharacter) {
+	AStarSearch(target, fraindlyTeamCharacter->getLocation(), fraindlyTeam, hostileTeam, fraindlyTeamCharacter->getBadJudgment(), fraindlyTeamCharacter);
+	RecoverTempGraysGhosts(srcType + teamNum, target, fraindlyTeam, hostileTeam, fraindlyTeamCharacter);
+}
+
+void WarriorMove(int teamNum ,int warriorNum,Team *hostileTeam, Team* fraindlyTeam ,Warrior * fraindlyWarrior ,Bullet * myBullet, Grenade * myGrenade) {
+
+	int myLimit = 90;
+	int grandePrice = 70;
+	int bulletPrice = 25;
+	int target = fraindlyWarrior->GetTarget();
+	float Distance_Warrior_ToEnemy = hostileTeam->DistanceToTeam(fraindlyWarrior->getLocation());
+	float fireSlution_Warrior_ToEnemy = hostileTeam->FireSolution(fraindlyWarrior->getLocation(), maze);
+	if (fraindlyWarrior->isChasing) {
+		if (Distance_Warrior_ToEnemy > 10 || fireSlution_Warrior_ToEnemy == -1) {
+			SeekAndMove(target, teamNum, WARRIOR_TEAM_1, fraindlyTeam, hostileTeam, fraindlyWarrior);
+		}
+		else {
+			int random_number = rand() % 100 + 1;
+			if ((random_number < myLimit && myGrenade == nullptr) || myBullet != nullptr) {
+
+				if (warriorNum == 0) {
+					bullet_warrior_1_team[teamNum] = fireEnemy(bulletPrice, myBullet, fraindlyWarrior, hostileTeam, fireSlution_Warrior_ToEnemy);
+				}
+				else {
+					bullet_warrior_2_team[teamNum] = fireEnemy(bulletPrice, myBullet, fraindlyWarrior, hostileTeam, fireSlution_Warrior_ToEnemy);
+				}
+				//myBullet = fireEnemy(bulletPrice, myBullet, fraindlyWarrior, hostileTeam, fireSlution_Warrior_ToEnemy);
+			}
+			if ((random_number >= myLimit && myBullet == nullptr && fraindlyWarrior->getAmmo() > grandePrice) || (myGrenade != nullptr)) {
+				if (warriorNum == 0) {
+					grenade_warrior_1_team[teamNum] = trowGrenade(grandePrice, myGrenade, fraindlyWarrior, hostileTeam, fireSlution_Warrior_ToEnemy);
+				}
+				else {
+					grenade_warrior_2_team[teamNum] = trowGrenade(grandePrice, myGrenade, fraindlyWarrior, hostileTeam, fireSlution_Warrior_ToEnemy);
+				}
+
+			}
+
+		}
+	}
+	else {
+		SeekAndMove(target, teamNum, WARRIOR_TEAM_1, fraindlyTeam, hostileTeam, fraindlyWarrior);
+	}
+	
+}
+
+
+#pragma region gameLogic
 void MoveTeams(int teamNum, int enemyTeam)
 {
-	teams[teamNum]->PlayTurn(teamNum);
+	int target;
+	int myLimit = 90;
+
+	int grandePrice = 25;
+	int bulletPrice = 25;
+
+	Team* fraindlyTeam = teams[teamNum];
+	Team* hostileTeam = teams[enemyTeam];
+	fraindlyTeam->PlayTurn(teamNum);
+
 	//warrior 1
-	int target = teams[teamNum]->warrior1->GetTarget();
- 	AStarSearch(target, teams[teamNum]->warrior1->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1->getBadJudgment(), teams[teamNum]->warrior1);
- 	RecoverTempGraysGhosts(WARRIOR_TEAM_1+ teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior1);
+	WarriorMove(teamNum,0, hostileTeam, fraindlyTeam, fraindlyTeam->warrior1, bullet_warrior_1_team[teamNum], grenade_warrior_1_team[teamNum]);
+
+
 	//warrior 2
-	target = teams[teamNum]->warrior2->GetTarget();
-	AStarSearch(target, teams[teamNum]->warrior2->getLocation(), teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2->getBadJudgment(), teams[teamNum]->warrior2);
-  	RecoverTempGraysGhosts(WARRIOR_TEAM_1 + teamNum, target, teams[teamNum],teams[enemyTeam], teams[teamNum]->warrior2);
+	//WarriorMove(teamNum,1, hostileTeam, fraindlyTeam, fraindlyTeam->warrior2, bullet_warrior_2_team[teamNum], grenade_warrior_2_team[teamNum]);
+
+
 	////luggage 
-	teams[teamNum]->luggageMove = true;
-	target = WARRIOR_TEAM_1 + teamNum;
-	AStarSearch(target, teams[teamNum]->luggage->getLocation(),teams[teamNum], teams[teamNum], teams[teamNum]->luggage->getBadJudgment(), teams[teamNum]->luggage);
-	RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum],teams[teamNum], teams[teamNum]->luggage);
+   /*	teams[teamNum]->luggageMove = true;
+  	target = WARRIOR_TEAM_1 + teamNum;
+	SeekAndMove(target, teamNum,LUGGAGE_TEAM_1, fraindlyTeam, fraindlyTeam, fraindlyTeam->luggage);*/
+  	//AStarSearch(target, teams[teamNum]->luggage->getLocation(),teams[teamNum], teams[teamNum], teams[teamNum]->luggage->getBadJudgment(), teams[teamNum]->luggage);
+  	//RecoverTempGraysGhosts(LUGGAGE_TEAM_1 + teamNum, target, teams[teamNum],teams[teamNum], teams[teamNum]->luggage);
 }
+
+
 void gameIteration()
 {
 	if (startGame == 1)
@@ -692,11 +845,10 @@ void gameIteration()
 	else
 		return;
 }
-
 #pragma endregion
 
-#pragma region Idle Menu and Main
 // runs all the time in the background
+#pragma region main_exe
 void idle()
 {
 
@@ -704,14 +856,41 @@ void idle()
 	{
 		gameIteration();
 	}
+
+	if (fireBulet){
+      fireBulet = pb->fire(maze, teams[0]);
+	}
+
+	if (throwGrenade) {
+		pg->SimulateExplosion(maze, security_map, teams[0]);
+	}
+		
 	glutPostRedisplay(); // indirect call to display
+}
+
+void mouse(int button, int state, int x, int y)
+{
+	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		pb = new Bullet(MSZ * x / (double)W, MSZ * (H - y) / (double)H, (rand() % 360) * PI / 180.0);
+		pg = new Grenade(MSZ * x / (double)W, MSZ * (H - y) / (double)H);
+	}
 }
 
 void menu(int choice)
 {
 	switch (choice)
 	{
-	case 1: // run Best First Search
+	case 1: // fire a bullet
+		fireBulet = true;
+		break;
+
+	case 2: // throw grenade
+		throwGrenade = true;
+		break;
+
+
+	case 3: // run Best First Search
 		startGame = true;
 		break;
 	}
@@ -722,18 +901,23 @@ void main(int argc, char* argv[])
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 	glutInitWindowSize(1200, 900);
+	glutInitWindowSize(W, H);
 	glutInitWindowPosition(400, 200);
 	glutCreateWindow("First Example");
 
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
+	glutMouseFunc(mouse);
 
 	glutCreateMenu(menu); // defines function menu as "menu" function
-	glutAddMenuEntry("Start Game", 1);
+	
+	glutAddMenuEntry("fire bullet", 1);
+	glutAddMenuEntry("Throw grenade", 2);
+    glutAddMenuEntry("Start Game", 3);
 	glutAttachMenu(GLUT_RIGHT_BUTTON); // attach to right mouse button
 
 	init();
 	glutMainLoop();
 }
-
 #pragma endregion
+
