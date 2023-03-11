@@ -292,6 +292,7 @@ void SetUpSupply(int type)
 }
 void ShowMaze()
 {
+	//commit*
 	int i, j;
 	for (i = 0; i < MSZ; i++)
 		for (j = 0; j < MSZ; j++)
