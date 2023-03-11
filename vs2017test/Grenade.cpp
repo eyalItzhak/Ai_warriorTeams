@@ -27,11 +27,11 @@ void Grenade::draw()
 
 }
 
-bool Grenade::explode(int maze[MSZ][MSZ] , Team* target)
+bool Grenade::explode(int maze[MSZ][MSZ] , Team* target, double security_map[MSZ][MSZ])
 {
 	bool finished = true;
 	for (int i = 0; i < NUM_BULLETS; i++)
-		if (bullets[i]->fire(maze, target))
+		if (bullets[i]->fire(maze, target, security_map))
 			finished = false;
 
 	return !finished;
@@ -40,9 +40,8 @@ bool Grenade::explode(int maze[MSZ][MSZ] , Team* target)
 void Grenade::SimulateExplosion(int maze[MSZ][MSZ], double security_map[MSZ][MSZ],Team * target)
 {
 	for (int i = 0; i < NUM_BULLETS; i++)
-		bullets[i]->fire(maze, target);  //wall it target temp...
-
-	//was bullets[i]->SimulateFire(maze, security_map);
+		//bullets[i]->fire(maze, target);  //wall it target temp...
+       bullets[i]->SimulateFire(maze, security_map);
 
 }
 
