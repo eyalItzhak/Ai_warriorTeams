@@ -27,7 +27,7 @@ const int W = 700; // window Width
 const int H = 700; // window Height
 
 //Room global variables
-
+int hpCollected, ammoCollected;
 int roomAmount = 0;
 vector<Room*> rooms;
 Cell target_cell;
@@ -565,14 +565,6 @@ void RestorePathGhosts(Cell* pc,Team* sourceTeam, float badJudgmentFactor) //add
 		{
 			if (rand() % (int)(1.0 / badJudgmentFactor) == 0) //move to the WRONG direction
 			{
-				/*cout << "Bad Move!" << endl;
-				Cell* move =FindWrongMove(pc, sourceTeam);
-				maze[move->getRow()][move->getCol()] = PATH;*/
-				//move->setOldStatus(pc.getst)
-				/*Cell* tmp = pc->getParent();
-				pc->deleteParent();
-				pc = tmp;*/
-				//continue;
 				FindWrongMove(pc, sourceTeam);
 			}
 			else // move to the right direction
@@ -604,15 +596,20 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 		maze[row][col] = TARGET;
 		Cell* targetLocation = new Cell(row, col, pCurrent);
 		tempGrays.push_back(targetLocation);
-		//NEED TO ADD FIGHTING HERE MAYBE?!
-		if (pCurrent->getParent() == nullptr) // Ghost one step away from the pacman
+		if (pCurrent->getParent() == nullptr) // Source one step away from the target
 		{
 			if (target == HP || target == AMMO)
 			{
 				if (target == HP)
+				{
 					character->setHp(character->getHp() + supplyBuff); // ADD HP
-				else 
+					hpCollected++;
+				}
+				else
+				{
 					character->setAmmo(character->getAmmo() + supplyBuff); // ADD AMMO
+					ammoCollected++;
+				}
 				if (team->luggageMove)
 				{
 					team->LuggageNextCol = col;
@@ -625,11 +622,6 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 				}
 				maze[row][col] = SPACE;
 			}
-			
-			//cout << "GameOver" << endl;
-			//startGame = 0;
-			/*NextCol = col;
-			NextRow = row;*/
 		}
 		/*else
 			cout << "Found Pacman Path" << endl;*/
@@ -648,10 +640,41 @@ bool FoundTarget(Team* targetTeam, int target)
 {
 	vector<Cell*> locations;
 	if (target == HP)
+	{
 		locations = hpVector;
+		int hpCollectedCopy = hpCollected;
+		if (hpCollectedCopy == 0)
+			return true;
+		for (int i = 0; i < locations.size(); i++)
+		{
+			if (maze[locations[i]->getRow()][locations[i]->getCol()] != target)
+			{
+				hpCollectedCopy--;
+			}
+		}
+		if (hpCollectedCopy < hpCollected)
+			return false;
+		return true;
+	}
+		
 
 	else if (target == AMMO)
+	{
 		locations = ammoVector;
+		int ammoCollectedCopy = ammoCollected;
+		/*if (ammoCollectedCopy == 0)
+			return true;*/
+		for (int i = 0; i < locations.size(); i++)
+		{
+			if (maze[locations[i]->getRow()][locations[i]->getCol()] != target)
+			{
+				ammoCollectedCopy--;
+			}
+		}
+		if (ammoCollectedCopy < ammoCollected)
+			return false;
+		return true;
+	}
 	else
 		locations = targetTeam->GetTargetByType(target);
 	for (int i = 0; i < locations.size(); i++)
