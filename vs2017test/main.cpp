@@ -660,6 +660,7 @@ bool FoundTarget(Team* targetTeam, int target)
 
 	else if (target == AMMO)
 	{
+	
 		locations = ammoVector;
 		int ammoCollectedCopy = ammoCollected;
 		/*if (ammoCollectedCopy == 0)
