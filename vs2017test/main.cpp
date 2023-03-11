@@ -774,9 +774,9 @@ void SeekAndMove(int target,int teamNum,int srcType ,Team * fraindlyTeam ,Team *
 
 void WarriorMove(int teamNum ,int warriorNum,Team *hostileTeam, Team* fraindlyTeam ,Warrior * fraindlyWarrior ,Bullet * myBullet, Grenade * myGrenade) {
 
-	int myLimit = 90;
-	int grandePrice = 70;
-	int bulletPrice = 25;
+	int myLimit = 50;
+	int grandePrice = 1;
+	int bulletPrice = 1;
 	int target = fraindlyWarrior->GetTarget();
 	float Distance_Warrior_ToEnemy = hostileTeam->DistanceToTeam(fraindlyWarrior->getLocation());
 	float fireSlution_Warrior_ToEnemy = hostileTeam->FireSolution(fraindlyWarrior->getLocation(), maze);
