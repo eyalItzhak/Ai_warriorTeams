@@ -20,6 +20,7 @@ using namespace std::chrono; // nanoseconds, system_clock, seconds
 #pragma region globalAndParams
 // Maze global variables
 int maze[MSZ][MSZ];
+double security_map[MSZ][MSZ] = { 0 };
 bool drawPassages = true;
 
 // Type of frontend elements
@@ -65,7 +66,6 @@ Grenade* grenade_warrior_2_team[2] = { nullptr,nullptr };
 
 
 
-double security_map[MSZ][MSZ] = { 0 };
 
 
 #pragma endregion
@@ -161,9 +161,6 @@ void InitMaze()
 		for (j = 1; j < MSZ - 1; j++)
 		{
 
-			
-
-
 			if (rand() % 10 == roomAmount) // mostly WALLs
 			{
 				int size = rand() % 30 + 10; // min size of a room is 10 by 10 (max 40x40); 
@@ -190,6 +187,7 @@ void InitMaze()
 				maze[i][j] = WALL; // 65%
 			}
 		}
+
 	// Connect Rooms
 	for (int i = 0; i < rooms.size(); i++) // Room to connect
 	{
@@ -213,6 +211,25 @@ void InitMaze()
 	SetUpSupply(AMMO);
 	SetUpSupply(HP);
 }
+
+//void CreateSecurityMap()
+//{
+//	int counter = 0, x, y, xx, yy;
+//
+//	for (counter = 0; counter < 2500; counter++)
+//	{
+//		x = rand() % W;
+//		y = rand() % H;
+//		xx = MSZ * x / (double)W;
+//		yy = MSZ * (y) / (double)H;
+//		if (maze[yy][xx] == SPACE)
+//		{
+//			pg = new Grenade(xx, yy);
+//			pg->SimulateExplosion(maze, security_map, teams[0]);
+//		}
+//	}
+//}
+
 void SetUpTeams()
 {
 	int startRoom;
@@ -279,13 +296,14 @@ void ShowMaze()
 	for (i = 0; i < MSZ; i++)
 		for (j = 0; j < MSZ; j++)
 		{
+			double c = 1 - security_map[i][j];
 			switch (maze[i][j])
 			{
 			case WALL:
 				glColor3d(0, 0, 0);// set color black
 				break;
 			case SPACE:
-				glColor3d(1, 1, 1);// set color white
+				glColor3d(c, c, c);// set color white
 				break;
 			case AMMO:
 				glColor3d(0.1, 1, 0.1);// set color blue
@@ -715,7 +733,7 @@ Bullet* fireEnemy(int bulletPrice ,Bullet* myBullet, Warrior* warrior, Team* hos
 	}
 	else {
 		/*	printf("bullet fly");*/
-		myBullet->fire(maze, hostileTeam);
+		myBullet->fire(maze, hostileTeam, security_map);
 		if (myBullet->isBulletHit()) {
 			myBullet = nullptr;
 		}
@@ -739,7 +757,7 @@ Grenade* trowGrenade(int granaderPrice ,Grenade* myGrenade, Warrior* warrior, Te
 	}
 	else {
 		printf("bullet exp\n");
-		myGrenade->explode(maze, hostileTeam);
+		myGrenade->explode(maze, hostileTeam,security_map);
 		if (myGrenade->isExplodeStop()) {
 			myGrenade = nullptr;
 		}
@@ -756,9 +774,9 @@ void SeekAndMove(int target,int teamNum,int srcType ,Team * fraindlyTeam ,Team *
 
 void WarriorMove(int teamNum ,int warriorNum,Team *hostileTeam, Team* fraindlyTeam ,Warrior * fraindlyWarrior ,Bullet * myBullet, Grenade * myGrenade) {
 
-	int myLimit = 90;
-	int grandePrice = 70;
-	int bulletPrice = 25;
+	int myLimit = 50;
+	int grandePrice = 1;
+	int bulletPrice = 1;
 	int target = fraindlyWarrior->GetTarget();
 	float Distance_Warrior_ToEnemy = hostileTeam->DistanceToTeam(fraindlyWarrior->getLocation());
 	float fireSlution_Warrior_ToEnemy = hostileTeam->FireSolution(fraindlyWarrior->getLocation(), maze);
@@ -858,11 +876,11 @@ void idle()
 	}
 
 	if (fireBulet){
-      fireBulet = pb->fire(maze, teams[0]);
+      fireBulet = pb->fire(maze, teams[0], security_map);
 	}
 
 	if (throwGrenade) {
-		pg->SimulateExplosion(maze, security_map, teams[0]);
+		pg->explode(maze, teams[0], security_map);
 	}
 		
 	glutPostRedisplay(); // indirect call to display
@@ -893,7 +911,13 @@ void menu(int choice)
 	case 3: // run Best First Search
 		startGame = true;
 		break;
+
+	case 4 :
+		/*CreateSecurityMap();*/
+		break;
 	}
+
+
 }
 
 void main(int argc, char* argv[])
@@ -914,6 +938,7 @@ void main(int argc, char* argv[])
 	glutAddMenuEntry("fire bullet", 1);
 	glutAddMenuEntry("Throw grenade", 2);
     glutAddMenuEntry("Start Game", 3);
+	glutAddMenuEntry("Show Security Map", 4);
 	glutAttachMenu(GLUT_RIGHT_BUTTON); // attach to right mouse button
 
 	init();
