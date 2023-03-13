@@ -19,7 +19,7 @@ public:
 
 	Bullet();
 	Bullet(double xx, double yy, double alpha);
-	bool fire(int maze[MSZ][MSZ], Team* target);
+	bool fire(int maze[MSZ][MSZ], Team* target, double security_map[MSZ][MSZ]);
 	void draw();
 	void SimulateFire(int maze[MSZ][MSZ], double security_map[MSZ][MSZ]);
 	bool isBulletHit();

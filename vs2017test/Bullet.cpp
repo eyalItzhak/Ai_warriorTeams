@@ -18,7 +18,7 @@ Bullet::Bullet(double xx, double yy, double alpha)
 	hitTarget = false;
 }
 
-bool Bullet::fire(int maze[MSZ][MSZ] ,Team * target)
+bool Bullet::fire(int maze[MSZ][MSZ] ,Team * target, double security_map[MSZ][MSZ])
 {
 	if (maze[(int)y][(int)x] == WALL) {
 		hitTarget = true;
@@ -32,6 +32,7 @@ bool Bullet::fire(int maze[MSZ][MSZ] ,Team * target)
 		return false;
 	}	
 
+	security_map[(int)y][(int)x] += MARK;
 	x += dirx * STEP; // move bullet by STEP to direction (dirx,dity)
 	y += diry * STEP;
 	distance = distance + 1;
