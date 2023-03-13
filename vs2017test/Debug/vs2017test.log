@@ -1,12 +1,29 @@
-﻿  main.cpp
+﻿  Bullet.cpp
+C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Bullet.cpp(31,58): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+  Grenade.cpp
+  Warrior.cpp
+C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Warrior.cpp(15,19): warning C4305: '=': truncation from 'double' to 'float'
+  main.cpp
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(98,31): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(103,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(192,20): warning C4018: '<': signed/unsigned mismatch
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(194,21): warning C4018: '<': signed/unsigned mismatch
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(150,12): warning C4101: 'random': unreferenced local variable
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(469,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(482,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(675,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(821,6): warning C4101: 'target': unreferenced local variable
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(924,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
+C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(470,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(483,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(676,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(822,6): warning C4101: 'target': unreferenced local variable
+C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(925,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
+  Generating Code...
+  LINK : C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\Debug\vs2017test.exe not found or not built by the last incremental link; performing full link
+WanderingState.obj : warning LNK4099: PDB '' was not found with 'WanderingState.obj' or at ''; linking object as if no debug info
+Team.obj : warning LNK4099: PDB '' was not found with 'Team.obj' or at ''; linking object as if no debug info
+State.obj : warning LNK4099: PDB '' was not found with 'State.obj' or at ''; linking object as if no debug info
+RuningState.obj : warning LNK4099: PDB '' was not found with 'RuningState.obj' or at ''; linking object as if no debug info
+Room.obj : warning LNK4099: PDB '' was not found with 'Room.obj' or at ''; linking object as if no debug info
+Luggage.obj : warning LNK4099: PDB '' was not found with 'Luggage.obj' or at ''; linking object as if no debug info
+ChasingState.obj : warning LNK4099: PDB '' was not found with 'ChasingState.obj' or at ''; linking object as if no debug info
+Character.obj : warning LNK4099: PDB '' was not found with 'Character.obj' or at ''; linking object as if no debug info
+Cell.obj : warning LNK4099: PDB '' was not found with 'Cell.obj' or at ''; linking object as if no debug info
+AssistingState.obj : warning LNK4099: PDB '' was not found with 'AssistingState.obj' or at ''; linking object as if no debug info
   vs2017test.vcxproj -> C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\Debug\vs2017test.exe
