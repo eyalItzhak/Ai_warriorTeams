@@ -20,16 +20,34 @@ void Luggage::PlayTurn(Warrior* warrior1, Warrior* warrior2)
 			getState()->MakeTransition(this);
 			if (comp(warrior1->getHp(), warrior2->getHp())) // help warrior1
 			{
-				if(warrior1->needHp)
+				if (warrior1->needHp)
 					target = warrior1;
 			}
 			else //help warrior2
 			{
-				if(warrior2->needHp)
+				if (warrior2->needHp)
+					target = warrior2;
+			}
+		}
+		else if (ammo > 0)
+		{
+			getState()->MakeTransition(this);
+			if (comp(warrior1->getAmmo(), warrior2->getAmmo())) // help warrior1
+			{
+				if (warrior1->needAmmo)
+					target = warrior1;
+			}
+			else //help warrior2
+			{
+				if (warrior2->needAmmo)
 					target = warrior2;
 			}
 		}
 	}
+	else
+	{
+		target = NULL;
+	};
 }
 
 Luggage::~Luggage()

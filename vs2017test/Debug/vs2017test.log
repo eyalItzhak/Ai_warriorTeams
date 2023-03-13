@@ -1,13 +1,36 @@
-﻿  main.cpp
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(98,31): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(103,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(194,20): warning C4018: '<': signed/unsigned mismatch
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(196,21): warning C4018: '<': signed/unsigned mismatch
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(150,12): warning C4101: 'random': unreferenced local variable
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(451,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(464,20): warning C4018: '<': signed/unsigned mismatch
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(648,21): warning C4018: '<': signed/unsigned mismatch
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(667,21): warning C4018: '<': signed/unsigned mismatch
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(680,20): warning C4018: '<': signed/unsigned mismatch
-C:\git\Ai_warriorTeams\vs2017test\main.cpp(908,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
-  vs2017test.vcxproj -> C:\git\Ai_warriorTeams\Debug\vs2017test.exe
+﻿  AssistingState.cpp
+  Bullet.cpp
+D:\git\Ai_warriorTeams\vs2017test\Bullet.cpp(31,62): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+  Cell.cpp
+  Character.cpp
+  ChasingState.cpp
+  Grenade.cpp
+  Luggage.cpp
+  Room.cpp
+  RuningState.cpp
+  State.cpp
+  Team.cpp
+D:\git\Ai_warriorTeams\vs2017test\Team.cpp(63,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\Team.cpp(67,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\Team.cpp(95,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\Team.cpp(98,10): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\Team.cpp(100,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\Team.cpp(103,10): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\Team.cpp(150,23): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+  WanderingState.cpp
+  Warrior.cpp
+D:\git\Ai_warriorTeams\vs2017test\Warrior.cpp(15,19): warning C4305: '=': truncation from 'double' to 'float'
+  main.cpp
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(106,31): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(111,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(202,20): warning C4018: '<': signed/unsigned mismatch
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(204,21): warning C4018: '<': signed/unsigned mismatch
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(158,12): warning C4101: 'random': unreferenced local variable
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(466,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(477,20): warning C4018: '<': signed/unsigned mismatch
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(644,70): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(646,66): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(701,20): warning C4018: '<': signed/unsigned mismatch
+D:\git\Ai_warriorTeams\vs2017test\main.cpp(936,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
+  Generating Code...
+  vs2017test.vcxproj -> D:\git\Ai_warriorTeams\Debug\vs2017test.exe

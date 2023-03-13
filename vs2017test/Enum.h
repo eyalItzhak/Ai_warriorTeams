@@ -12,8 +12,11 @@ const int WARRIOR_TEAM_1 = 9;
 const int WARRIOR_TEAM_2 = 10;
 const int LUGGAGE_TEAM_1 = 11;
 const int LUGGAGE_TEAM_2 = 12;
-
-
+const int GRANADE_PRICE = 20;
+const int BULLET_PRICE = 10;
+const int START_HP = 100;
+const int START_AMMO = 20;
+const int DAMAGE = 10;
 //setting 
 const int MSZ = 100;
 const int MAX_ROOMS = 10;
