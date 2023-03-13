@@ -72,7 +72,7 @@ void InitMaze();
 void ShowMaze();
 float cellsDistance(Cell* dest, Cell* src);
 void idle();
-void sortedInsert(Cell* toInsert);
+void sortedInsert(Cell* toInsert, int row, int col);
 void CheckNeighborDistance(Cell* pCurrent, int row, int col);
 void ConnectRooms(int from, int to);
 void RecoverTempGrays();
@@ -449,16 +449,16 @@ void CheckNeighborDistance(Cell* pCurrent, int row, int col)
 		pc->setOldStatus(maze[row][col]);
 		tempGrays.push_back(pc);
 		maze[row][col] = GRAY;
-		sortedInsert(pc);
+		sortedInsert(pc,row,col);
 
 	}
 }
 //// Insert a new cell by prioritizing his distance from destination
-void sortedInsert(Cell* toInsert)
+void sortedInsert(Cell* toInsert,int row,int col)
 {
 	float distance = cellsDistance(&target_cell, toInsert);
 	toInsert->setH(distance);
-	toInsert->setG((toInsert->getParent()->getG() + 1));
+	toInsert->setG((toInsert->getParent()->getG() + 1)+security_map[row][col]);
 	toInsert->setF();
 
 	int x = 0;
@@ -697,7 +697,7 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 		pc->setOldStatus(maze[row][col]);
 		tempGrays.push_back(pc);
 		maze[row][col] = GRAY;
-		sortedInsert(pc);
+		sortedInsert(pc,row,col);
 	}
 }
 bool FoundTarget(Team* targetTeam, int target)
@@ -798,7 +798,7 @@ Grenade* trowGrenade(int granaderPrice ,Grenade* myGrenade, Warrior* warrior, Te
         }
 	}
 	else {
-		myGrenade->explode(maze, hostileTeam);
+		myGrenade->explode(maze, hostileTeam, security_map);
 		if (myGrenade->isExplodeStop()) {
 			myGrenade = nullptr;
 		}
