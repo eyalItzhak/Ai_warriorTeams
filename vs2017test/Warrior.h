@@ -16,5 +16,6 @@ public:
 	bool needHp = false;
 	bool needAmmo = false;
 	int target;
+	int lastTarget = -1;
 };
 

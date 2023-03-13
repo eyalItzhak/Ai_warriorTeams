@@ -28,7 +28,7 @@ bool Bullet::fire(int maze[MSZ][MSZ] ,Team * target)
 
 	if (maze[(int)y][(int)x] == target->getWarriorsType() && hitTarget==false){
 		hitTarget = true;
-		target->TeamMemeberTakeDamageEvent((int)x, (int)y, (10)-(0.1* distance));
+		target->TeamMemeberTakeDamageEvent((int)x, (int)y, (DAMAGE)-(0.1* distance));
 		return false;
 	}	
 

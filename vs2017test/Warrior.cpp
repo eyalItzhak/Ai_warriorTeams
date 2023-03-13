@@ -25,43 +25,47 @@ void Warrior::PlayTurn(int myTeam)
 		{
 			needHp = true;
 			getState()->MakeTransition(this);
+			return;
 		}
-		if (ammo == 0)
+		if (ammo < GRANADE_PRICE || ammo < BULLET_PRICE)
 		{
 			getState()->MakeTransition(this);
+			return;
 		}
 		if (myTeam == 0)
 			target = WARRIOR_TEAM_2;
 		else
 			target = WARRIOR_TEAM_1;
+		if (lastTarget == -1)
+			lastTarget = target;
 	}
 	else
 	{
 		if (hp < MIN_HP)
 		{
 			target = HP;
-			return;
 		}
-			
-		if (ammo < MIN_AMMO)
-		{
-			target = AMMO;
-			return;
-		}
-		if (hp >= MIN_HP)
+		else
 		{
 			needHp = false;
-			getState()->MakeTransition(this);
-			return;
 		}
-		if (ammo >= MIN_AMMO)
+		if (ammo < MIN_AMMO && hp >= MIN_HP)
+		{
+			target = AMMO;
+		}
+		else
 		{
 			needAmmo = false;
-			getState()->MakeTransition(this);
-			return;
 		}
+		if (!needAmmo && !needHp)
+		{
+			getState()->MakeTransition(this);
+		}
+		if (lastTarget == -1)
+			lastTarget = target;
 	}
 }
+
 Warrior::~Warrior()
 {
 }
