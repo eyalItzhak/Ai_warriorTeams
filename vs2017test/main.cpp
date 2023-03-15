@@ -659,21 +659,21 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 		{
 			if (team->luggageMove && (target == WARRIOR_TEAM_1 || target == WARRIOR_TEAM_2) && team->luggage->target!=NULL)// luggage reached it's teammate
 			{
-				if (team->luggage->target->getAmmo() <START_AMMO)
+				if (team->luggage->target->getAmmo() <MAX_AMMO)
 					team->luggage->target->setAmmo(team->luggage->target->getAmmo() + (team->luggage->getAmmo() * 0.5));
-				if(team->luggage->target->getHp() < START_HP)
+				if(team->luggage->target->getHp() < MAX_HP)
 					team->luggage->target->setHp(team->luggage->target->getHp() + (team->luggage->getHp() * 0.5));
 			}
 			if (target == HP || target == AMMO)
 			{
 				if (target == HP)
 				{
-					if (character->getHp() <START_HP)
+					if (character->getHp() <MAX_HP)
 						character->setHp(character->getHp() + supplyBuff); // ADD HP
 				}
 				else
 				{
-					if (character->getAmmo() < START_AMMO)
+					if (character->getAmmo() < MAX_AMMO)
 						character->setAmmo(character->getAmmo() + supplyBuff); // ADD AMMO
 				}
 				if (team->luggageMove)
