@@ -13,8 +13,15 @@ public:
 	
 	int cooldownRound = 60;
 	int currentCoolDown = 0;
+    bool canSupport();
 
-	bool canSupport();
+	int sloweReaction = 3; //lower is beeter
+    int myReaction = 0;
+	bool canReact();
+
+	
+
+	
 };
 
 

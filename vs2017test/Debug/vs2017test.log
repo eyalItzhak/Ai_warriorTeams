@@ -1,26 +1,4 @@
-﻿  AssistingState.cpp
-  Bullet.cpp
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Bullet.cpp(31,62): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-  Cell.cpp
-  Character.cpp
-  ChasingState.cpp
-  Grenade.cpp
-  Luggage.cpp
-  Room.cpp
-  RuningState.cpp
-  State.cpp
-  Team.cpp
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Team.cpp(63,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Team.cpp(67,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Team.cpp(95,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Team.cpp(98,10): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Team.cpp(100,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Team.cpp(103,10): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Team.cpp(150,23): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-  WanderingState.cpp
-  Warrior.cpp
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\Warrior.cpp(15,19): warning C4305: '=': truncation from 'double' to 'float'
-  main.cpp
+﻿  main.cpp
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(105,31): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(110,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(199,20): warning C4018: '<': signed/unsigned mismatch
@@ -30,6 +8,5 @@ C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(444
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(468,13): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(479,20): warning C4018: '<': signed/unsigned mismatch
 C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(705,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(937,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
-  Generating Code...
+C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\vs2017test\main.cpp(939,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
   vs2017test.vcxproj -> C:\Users\eyalp\OneDrive\Desktop\projects\Ai_warriorTeams\Debug\vs2017test.exe

@@ -60,10 +60,26 @@ bool Luggage::canSupport()
 
     currentCoolDown = currentCoolDown + 1;
 
-	if (currentCoolDown == 60) 
+	if (currentCoolDown >= cooldownRound)
 		currentCoolDown = 0;
 
 	
+	return false;
+}
+
+bool Luggage::canReact()
+{
+	if (myReaction == 0) {
+		myReaction = myReaction + 1;
+		return true;
+	}
+
+	myReaction = myReaction + 1;
+
+	if (myReaction >= sloweReaction)
+		myReaction = 0;
+
+
 	return false;
 }
 

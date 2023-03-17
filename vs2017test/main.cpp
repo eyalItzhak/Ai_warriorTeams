@@ -856,8 +856,10 @@ void WarriorMove(int teamNum, int warriorNum, Team* hostileTeam, Team* fraindlyT
 void luggageMove(int teamNum, Team* fraindlyTeam) {
 	CheckGameOver(teamNum, fraindlyTeam);
 	fraindlyTeam->luggageMove = true;
+	if (fraindlyTeam->luggage->canReact()) {
 	int target = WARRIOR_TEAM_1 + teamNum;
 	SeekAndMove(target, teamNum, LUGGAGE_TEAM_1, fraindlyTeam, fraindlyTeam, fraindlyTeam->luggage);
+	}
 }
 
 #pragma region gameLogic
@@ -886,7 +888,7 @@ void gameIteration()
 	{
 		MoveTeams(0, 1);
 		MoveTeams(1, 0);
-		sleep_for(milliseconds(50));
+		sleep_for(milliseconds(40));
 	}
 	else
 		return;
