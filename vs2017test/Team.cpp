@@ -94,15 +94,12 @@ float Team::FireSolution(Cell* map_pos , int maze[MSZ][MSZ])
 
 	int fireSolution_1 = getFireSolution(map_pos, warrior_1, maze);
 	if (fireSolution_1 != -1) {
-		/*printf("found fire slutuion %f \n", fireSolution_1);*/
 		return fireSolution_1;
 	}
 	int fireSolution_2 = getFireSolution(map_pos, warrior_2, maze);
 	if (fireSolution_2 != -1) {
-		/*printf("found fire slutuion %f \n", fireSolution_2);*/
 		return fireSolution_2;
 	}
-	/*printf("not found \n");*/
 	return -1;
  }
 
@@ -163,24 +160,9 @@ double Team::calculateAngle(int startX, int startY, int endX, int endY) {
 		angleDegrees += 360.0;
 	}
 
-	//printf("%f from angle \n", angleDegrees);
 	return angleDegrees;
 }
 
-
-
-//float cellsDistance(Cell* dest, Cell* src)
-//{
-//	// Calculating distance
-//	double status = src->getOldStatus();
-//	if (status == SPACE)
-//		status = 0;
-//	else
-//		status = 0.001;
-//
-//	return sqrt(pow(dest->getCol() - src->getCol(), 2) +
-//		pow(dest->getRow() - src->getRow(), 2) * (1.0 * status));
-//}
 
 
 void Team::PlayTurn(int teamNum)

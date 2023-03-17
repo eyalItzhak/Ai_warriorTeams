@@ -37,7 +37,6 @@ Character::Character(int h, int a, State* s) {
 
     void Character::takingDamage(int damage) {
         hp = hp - damage;
-        printf("hp %d \n", hp);
     }
 
     int Character::getType() {

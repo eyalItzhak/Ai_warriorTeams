@@ -423,7 +423,6 @@ void CheckNeighborDistance(Cell* pCurrent, int row, int col)
 	{
 		drawPassages = false;
 		maze[row][col] = SPACE;
-		cout << "Found path" << endl;
 		RestorePath(pCurrent);
 	}
 	else
@@ -480,11 +479,9 @@ int FindCellPosition(vector<Cell*> cells, int row, int col)
 	{
 		if (cells[i]->getCol() == col && cells[i]->getRow() == row)
 		{
-			cout << "Found cell position!" << endl;
 			return i;
 		}
 	}
-	cout << "Didn't find cell position!" << endl;
 	return -1;
 }
 void RemoveHpOrAmmo(int target, int row, int col)
@@ -595,7 +592,6 @@ void FindWrongMove(Cell* pc, Team* sourceTeam)
 		sourceTeam->NextCol = col;
 		sourceTeam->NextRow = row;
 	}
-	cout << "Bad Move Found!" << endl;
 }
 
 void RestorePathCharacter(Cell* pc, Team* sourceTeam, float badJudgmentFactor) //add flag for running and change next row and nextCol logic to fit situation
@@ -762,7 +758,6 @@ Bullet* fireEnemy(int bulletPrice, Bullet* myBullet, Warrior* warrior, Team* hos
 		}
 	}
 	else {
-		/*	printf("bullet fly");*/
 		myBullet->fire(maze, hostileTeam, security_map);
 		if (myBullet->isBulletHit()) {
 			myBullet = nullptr;
@@ -871,7 +866,7 @@ void MoveTeams(int teamNum, int enemyTeam)
 
 	//warrior 1
 	WarriorMove(teamNum, 0, hostileTeam, fraindlyTeam, fraindlyTeam->warrior1, bullet_warrior_1_team[teamNum], grenade_warrior_1_team[teamNum]);
-	printf("Team %d Warrior has ammo: %d, hp: %d\n", teamNum, fraindlyTeam->warrior1->getAmmo(), fraindlyTeam->warrior1->getHp());
+	
 
 	//warrior 2
 	WarriorMove(teamNum, 1, hostileTeam, fraindlyTeam, fraindlyTeam->warrior2, bullet_warrior_2_team[teamNum], grenade_warrior_2_team[teamNum]);
