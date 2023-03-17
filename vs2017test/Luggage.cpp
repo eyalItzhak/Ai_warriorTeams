@@ -50,6 +50,23 @@ void Luggage::PlayTurn(Warrior* warrior1, Warrior* warrior2)
 	};
 }
 
+bool Luggage::canSupport()
+{
+
+	if (currentCoolDown == 0) {
+		currentCoolDown = currentCoolDown + 1 ;
+		return true;
+	}
+
+    currentCoolDown = currentCoolDown + 1;
+
+	if (currentCoolDown == 60) 
+		currentCoolDown = 0;
+
+	
+	return false;
+}
+
 Luggage::~Luggage()
 {
 }

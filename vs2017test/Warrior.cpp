@@ -16,8 +16,14 @@ Warrior::Warrior(int health, int am)
 }
 void Warrior::PlayTurn(int myTeam)
 {
-	if (ammo < MIN_AMMO)
+	if (ammo < MIN_AMMO) 
 		needAmmo = true;
+	else 
+		needAmmo = false;
+
+
+
+		
 	if (isChasing)
 	{
 		

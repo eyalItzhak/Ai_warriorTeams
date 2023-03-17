@@ -12,7 +12,7 @@ public:
 	void PlayTurn(int myTeam);
 	~Warrior();
 	const int MIN_HP = 30;
-	const int MIN_AMMO = 50;
+	const int MIN_AMMO = 30;
 	bool needHp = false;
 	bool needAmmo = false;
 	int target;

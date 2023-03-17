@@ -11,6 +11,10 @@ public:
 	Warrior* target;
 	int supplyTarget = HP;
 	
+	int cooldownRound = 60;
+	int currentCoolDown = 0;
+
+	bool canSupport();
 };
 
 

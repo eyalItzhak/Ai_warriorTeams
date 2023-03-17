@@ -28,5 +28,6 @@ public:
 	float FireSolution(Cell* map_pos, int maze[MSZ][MSZ]);
 	float getFireSolution(Cell* map_pos, Cell* charecterPos, int maze[MSZ][MSZ]);
 	double calculateAngle(int startX, int startY, int endX, int endY);
+
 };
 

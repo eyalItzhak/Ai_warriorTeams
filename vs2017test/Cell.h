@@ -10,7 +10,6 @@ private:
 	float h, g, f;
 	Cell* parent;
 	int old_status;
-	bool is_pacman;
 	bool chasing;
 	int timer;
 public:
@@ -22,7 +21,6 @@ public:
 	float getH() { return h; }
 	float getG() { return g; }
 	float getF() { return f; }
-	bool getPacman() { return is_pacman; }
 	bool getChasing() { return chasing; }
 	int getOldStatus() { return old_status; }
 	void setOldStatus(int val) { old_status = val; }
@@ -31,7 +29,6 @@ public:
 	void setRow(int r) { row = r; }
 	void setCol(int c) { col = c; }
 	void setF() { f = h + g; }
-	void setPacman(bool val) { is_pacman = val; }
 	void setChasing(bool val) { chasing = val; }
 	void deleteParent() { parent = nullptr; }
 	Cell* getParent() { return parent; }

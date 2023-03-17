@@ -38,25 +38,24 @@ vector<Cell*> grays;
 int supplyPerRoomAmount = 2;
 int supplyBuff = 50;
 // Game global variables
-Cell Pacman_cell;
+
 vector<Cell*> ammoVector;
 vector<Cell*> hpVector;
-bool found_Ghost = false;
 int NextRow, NextCol;
 vector<Team*> teams;
 int numberOfTeams = 2;
 //Game status global variables
 bool startGame = false;
-bool findPathForPacFlag = false;
-bool ScaredGhostsFlag = false;
-int pacManNextMoveTimer = 0;
-Cell* pacmanNextCell;
+
+
+
+
 
 bool fireBulet = false, throwGrenade = false;
 Bullet* pb = nullptr;
 Grenade* pg = nullptr;
 
-Bullet* bullet_warrior_1_team[2] = {nullptr,nullptr};
+Bullet* bullet_warrior_1_team[2] = { nullptr,nullptr };
 Bullet* bullet_warrior_2_team[2] = { nullptr,nullptr };
 
 Grenade* grenade_warrior_1_team[2] = { nullptr,nullptr };
@@ -80,7 +79,7 @@ void SetUpSupply(int type);
 Cell* PlaceItem(int type, int room);
 void SetUpTeams();
 void gameIteration();
-void AStarSearch(int target, Cell* currentLocation, Team* sourceTeam,Team* targetTeam, float badJudgmentFactor, Character* character);
+void AStarSearch(int target, Cell* currentLocation, Team* sourceTeam, Team* targetTeam, float badJudgmentFactor, Character* character);
 
 
 void mouse(int button, int state, int x, int y);
@@ -221,23 +220,7 @@ void InitMaze()
 	ResetMaze();
 }
 
-//void CreateSecurityMap()
-//{
-//	int counter = 0, x, y, xx, yy;
-//
-//	for (counter = 0; counter < 2500; counter++)
-//	{
-//		x = rand() % W;
-//		y = rand() % H;
-//		xx = MSZ * x / (double)W;
-//		yy = MSZ * (y) / (double)H;
-//		if (maze[yy][xx] == SPACE)
-//		{
-//			pg = new Grenade(xx, yy);
-//			pg->SimulateExplosion(maze, security_map, teams[0]);
-//		}
-//	}
-//}
+
 
 void SetUpTeams()
 {
@@ -255,7 +238,7 @@ void SetUpTeams()
 	do
 	{
 		secondStartRoom = rand() % roomAmount;
-	} while (startRoom== secondStartRoom);
+	} while (startRoom == secondStartRoom);
 	team = new Team(START_HP, START_AMMO);
 	teams.push_back(team);
 
@@ -291,9 +274,9 @@ void SetUpSupply(int type)
 		int counter = 0;
 		while (counter < supplyPerRoomAmount)
 		{
-			if(type == AMMO)
+			if (type == AMMO)
 				ammoVector.push_back(PlaceItem(type, i));
-			else if(type == HP)
+			else if (type == HP)
 				hpVector.push_back(PlaceItem(type, i));
 			counter++;
 		}
@@ -424,9 +407,9 @@ void RestorePath(Cell* pc)
 	while (pc != nullptr)
 	{
 		maze[pc->getRow()][pc->getCol()] = PATH;
-		maze[pc->getRow()+1][pc->getCol()] = PATH;
-		maze[pc->getRow()][pc->getCol()+1] = PATH;
-		maze[pc->getRow()+1][pc->getCol()+1] = PATH;
+		maze[pc->getRow() + 1][pc->getCol()] = PATH;
+		maze[pc->getRow()][pc->getCol() + 1] = PATH;
+		maze[pc->getRow() + 1][pc->getCol() + 1] = PATH;
 		maze[pc->getRow() - 1][pc->getCol() - 1] = PATH;
 		maze[pc->getRow()][pc->getCol() - 1] = PATH;
 		maze[pc->getRow() - 1][pc->getCol()] = PATH;
@@ -449,16 +432,16 @@ void CheckNeighborDistance(Cell* pCurrent, int row, int col)
 		pc->setOldStatus(maze[row][col]);
 		tempGrays.push_back(pc);
 		maze[row][col] = GRAY;
-		sortedInsert(pc,row,col);
+		sortedInsert(pc, row, col);
 
 	}
 }
 //// Insert a new cell by prioritizing his distance from destination
-void sortedInsert(Cell* toInsert,int row,int col)
+void sortedInsert(Cell* toInsert, int row, int col)
 {
 	float distance = cellsDistance(&target_cell, toInsert);
 	toInsert->setH(distance);
-	toInsert->setG((toInsert->getParent()->getG() + 1)+security_map[row][col]);
+	toInsert->setG((toInsert->getParent()->getG() + 1) + security_map[row][col]);
 	toInsert->setF();
 
 	int x = 0;
@@ -492,7 +475,7 @@ int FindCellPosition(vector<Cell*> cells, int row, int col)
 		printf("Game Over!");
 		startGame = 0;
 	}
-		
+
 	for (int i = 0; i < cells.size(); i++)
 	{
 		if (cells[i]->getCol() == col && cells[i]->getRow() == row)
@@ -504,7 +487,7 @@ int FindCellPosition(vector<Cell*> cells, int row, int col)
 	cout << "Didn't find cell position!" << endl;
 	return -1;
 }
-void RemoveHpOrAmmo(int target,int row,int col)
+void RemoveHpOrAmmo(int target, int row, int col)
 {
 	if (target == HP || target == AMMO)
 	{
@@ -528,11 +511,10 @@ void RemoveHpOrAmmo(int target,int row,int col)
 
 #pragma region Game Started
 
-#pragma region Ghost Logic
 
-#pragma region Ghosts Chasing Logic
 
-void RecoverTempGraysGhosts(int source, int target, Team* sourceTeam,Team* targetTeam, Character* charcter)
+
+void RecoverTempGraysCharacter(int source, int target, Team* sourceTeam, Team* targetTeam, Character* charcter)
 {
 	int size = tempGrays.size();
 	for (int i = 0; i < size; i++)
@@ -559,12 +541,12 @@ void RecoverTempGraysGhosts(int source, int target, Team* sourceTeam,Team* targe
 		{
 			if (startGame == 1)
 			{
-				
-				
+
+
 				maze[row][col] = target;
 				maze[charcter->getLocation()->getRow()][charcter->getLocation()->getCol()] = source;
 			}
-				
+
 			continue;
 		}
 		maze[row][col] = pCurrent->getOldStatus();
@@ -596,14 +578,14 @@ void FindWrongMove(Cell* pc, Team* sourceTeam)
 			row = row - 1;
 			valid = true;
 		}
-		else if(ValidMove(pc->getRow(), pc->getCol() - 1))//LEFT
+		else if (ValidMove(pc->getRow(), pc->getCol() - 1))//LEFT
 		{
 			col = col - 1;
 			valid = true;
 		}
 	} while (!valid);
-	
-	if (sourceTeam->luggageMove) 
+
+	if (sourceTeam->luggageMove)
 	{
 		sourceTeam->LuggageNextCol = col;
 		sourceTeam->LuggageNextRow = row;
@@ -616,7 +598,7 @@ void FindWrongMove(Cell* pc, Team* sourceTeam)
 	cout << "Bad Move Found!" << endl;
 }
 
-void RestorePathGhosts(Cell* pc,Team* sourceTeam, float badJudgmentFactor) //add flag for running and change next row and nextCol logic to fit situation
+void RestorePathCharacter(Cell* pc, Team* sourceTeam, float badJudgmentFactor) //add flag for running and change next row and nextCol logic to fit situation
 {
 	while (pc->getParent() != nullptr)
 	{
@@ -639,7 +621,7 @@ void RestorePathGhosts(Cell* pc,Team* sourceTeam, float badJudgmentFactor) //add
 					sourceTeam->NextRow = pc->getRow();
 				}
 			}
-			
+
 		}
 		maze[pc->getRow()][pc->getCol()] = PATH;
 		pc = pc->getParent();
@@ -647,7 +629,7 @@ void RestorePathGhosts(Cell* pc,Team* sourceTeam, float badJudgmentFactor) //add
 }
 
 //// Check distance
-void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, Team* team, float judgment,Character* character)
+void CheckNeighborDistanceCharacter(Cell* pCurrent, int row, int col, int target, Team* team, float judgment, Character* character)
 {
 	if (maze[row][col] == target) // The algorithm is over
 	{
@@ -657,18 +639,21 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 		tempGrays.push_back(targetLocation);
 		if (pCurrent->getParent() == nullptr) // Source one step away from the target
 		{
-			if (team->luggageMove && (target == WARRIOR_TEAM_1 || target == WARRIOR_TEAM_2) && team->luggage->target!=NULL)// luggage reached it's teammate
+			if (team->luggageMove && (target == WARRIOR_TEAM_1 || target == WARRIOR_TEAM_2) && team->luggage->target != NULL)// luggage reached it's teammate
 			{
-				if (team->luggage->target->getAmmo() <MAX_AMMO)
-					team->luggage->target->setAmmo(team->luggage->target->getAmmo() + (team->luggage->getAmmo() * 0.5));
-				if(team->luggage->target->getHp() < MAX_HP)
-					team->luggage->target->setHp(team->luggage->target->getHp() + (team->luggage->getHp() * 0.5));
+				if (team->luggage->canSupport()) {
+					if (team->luggage->target->needAmmo)
+						team->luggage->target->setAmmo(60); //to do  : not hard code ...***
+					if (team->luggage->target->needHp)
+						team->luggage->target->setHp(60);
+				}
+
 			}
 			if (target == HP || target == AMMO)
 			{
 				if (target == HP)
 				{
-					if (character->getHp() <MAX_HP)
+					if (character->getHp() < MAX_HP)
 						character->setHp(character->getHp() + supplyBuff); // ADD HP
 				}
 				else
@@ -689,7 +674,7 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 				maze[row][col] = SPACE;
 			}
 		}
-		RestorePathGhosts(pCurrent, team, judgment);
+		RestorePathCharacter(pCurrent, team, judgment);
 	}
 	else
 	{
@@ -697,7 +682,7 @@ void CheckNeighborDistanceGhosts(Cell* pCurrent, int row, int col, int target, T
 		pc->setOldStatus(maze[row][col]);
 		tempGrays.push_back(pc);
 		maze[row][col] = GRAY;
-		sortedInsert(pc,row,col);
+		sortedInsert(pc, row, col);
 	}
 }
 bool FoundTarget(Team* targetTeam, int target)
@@ -725,7 +710,7 @@ bool FoundTarget(Team* targetTeam, int target)
 	return true;
 }
 
-void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targetTeam, float judgment, Character* character)
+void AStarSearch(int target, Cell* currentLocation, Team* sourceTeam, Team* targetTeam, float judgment, Character* character)
 {
 	roomGrays.clear();
 	drawPassages = true;
@@ -750,24 +735,24 @@ void AStarSearch(int target, Cell* currentLocation,Team* sourceTeam, Team* targe
 		// 3 check the neighbors of pCurrent and pick the white one and add them to the end of grays
 		// UP
 		if (maze[row + 1][col] == SPACE || maze[row + 1][col] == target || (maze[row + 1][col] == AMMO) || (maze[row + 1][col] == HP))
-			CheckNeighborDistanceGhosts(pCurrent, row + 1, col, target, sourceTeam, judgment, character);
+			CheckNeighborDistanceCharacter(pCurrent, row + 1, col, target, sourceTeam, judgment, character);
 		// DOWN
 		if (drawPassages)
 			if (maze[row - 1][col] == SPACE || maze[row - 1][col] == target || (maze[row - 1][col] == AMMO) || (maze[row - 1][col] == HP))
-				CheckNeighborDistanceGhosts(pCurrent, row - 1, col, target, sourceTeam, judgment, character);
+				CheckNeighborDistanceCharacter(pCurrent, row - 1, col, target, sourceTeam, judgment, character);
 		// right		
 		if (drawPassages)
 			if (maze[row][col + 1] == SPACE || maze[row][col + 1] == target || (maze[row][col + 1] == AMMO) || (maze[row][col + 1] == HP))
-				CheckNeighborDistanceGhosts(pCurrent, row, col + 1, target, sourceTeam, judgment, character);
+				CheckNeighborDistanceCharacter(pCurrent, row, col + 1, target, sourceTeam, judgment, character);
 		// left		
 		if (drawPassages)
 			if (maze[row][col - 1] == SPACE || maze[row][col - 1] == target || (maze[row][col - 1] == AMMO) || (maze[row][col - 1] == HP))
-				CheckNeighborDistanceGhosts(pCurrent, row, col - 1, target, sourceTeam, judgment, character);
+				CheckNeighborDistanceCharacter(pCurrent, row, col - 1, target, sourceTeam, judgment, character);
 	}
 }
 #pragma endregion
 
-Bullet* fireEnemy(int bulletPrice ,Bullet* myBullet, Warrior* warrior, Team* hostileTeam, float wereToShot) {
+Bullet* fireEnemy(int bulletPrice, Bullet* myBullet, Warrior* warrior, Team* hostileTeam, float wereToShot) {
 	if (!myBullet) {
 		if (warrior->getAmmo() >= bulletPrice) {
 			warrior->setAmmo(warrior->getAmmo() - bulletPrice);
@@ -786,16 +771,16 @@ Bullet* fireEnemy(int bulletPrice ,Bullet* myBullet, Warrior* warrior, Team* hos
 	return myBullet;
 
 }
-Grenade* trowGrenade(int granaderPrice ,Grenade* myGrenade, Warrior* warrior, Team* hostileTeam, float wereToShot) {
+Grenade* trowGrenade(int granaderPrice, Grenade* myGrenade, Warrior* warrior, Team* hostileTeam, float wereToShot) {
 
 	if (!myGrenade) {
 		if (warrior->getAmmo() >= granaderPrice) {
-	    warrior->setAmmo(warrior->getAmmo() - granaderPrice);
-		
-		double row = hostileTeam->rowGreandeLocation;
-		double col = hostileTeam->colGreandeLocation;
-		myGrenade = new Grenade(col, row);
-        }
+			warrior->setAmmo(warrior->getAmmo() - granaderPrice);
+
+			double row = hostileTeam->rowGreandeLocation;
+			double col = hostileTeam->colGreandeLocation;
+			myGrenade = new Grenade(col, row);
+		}
 	}
 	else {
 		myGrenade->explode(maze, hostileTeam, security_map);
@@ -805,7 +790,7 @@ Grenade* trowGrenade(int granaderPrice ,Grenade* myGrenade, Warrior* warrior, Te
 	}
 	return myGrenade;
 }
-void CheckGameOver(int teamNum,Team* fraindlyTeam)
+void CheckGameOver(int teamNum, Team* fraindlyTeam)
 {
 	int winningTeam;
 	if (fraindlyTeam->warrior1->getHp() <= 0 || fraindlyTeam->warrior2->getHp() <= 0 || hpVector.empty() || ammoVector.empty())
@@ -815,15 +800,15 @@ void CheckGameOver(int teamNum,Team* fraindlyTeam)
 		printf("Game Over! Team: %d wins!\n", teamNum);
 	}
 }
-void SeekAndMove(int target,int teamNum,int srcType ,Team * fraindlyTeam ,Team * hostileTeam , Character* fraindlyTeamCharacter) {
+void SeekAndMove(int target, int teamNum, int srcType, Team* fraindlyTeam, Team* hostileTeam, Character* fraindlyTeamCharacter) {
 	AStarSearch(target, fraindlyTeamCharacter->getLocation(), fraindlyTeam, hostileTeam, fraindlyTeamCharacter->getBadJudgment(), fraindlyTeamCharacter);
-	RecoverTempGraysGhosts(srcType + teamNum, target, fraindlyTeam, hostileTeam, fraindlyTeamCharacter);
+	RecoverTempGraysCharacter(srcType + teamNum, target, fraindlyTeam, hostileTeam, fraindlyTeamCharacter);
 }
 
-void WarriorMove(int teamNum ,int warriorNum,Team *hostileTeam, Team* fraindlyTeam ,Warrior * fraindlyWarrior ,Bullet * myBullet, Grenade * myGrenade) {
+void WarriorMove(int teamNum, int warriorNum, Team* hostileTeam, Team* fraindlyTeam, Warrior* fraindlyWarrior, Bullet* myBullet, Grenade* myGrenade) {
 
 	int myLimit = 90;
-	CheckGameOver(teamNum,fraindlyTeam);
+	CheckGameOver(teamNum, fraindlyTeam);
 	int target = fraindlyWarrior->GetTarget();
 	if (target != fraindlyWarrior->lastTarget)
 	{
@@ -864,7 +849,15 @@ void WarriorMove(int teamNum ,int warriorNum,Team *hostileTeam, Team* fraindlyTe
 	else {
 		SeekAndMove(target, teamNum, WARRIOR_TEAM_1, fraindlyTeam, hostileTeam, fraindlyWarrior);
 	}
-	
+
+}
+
+
+void luggageMove(int teamNum, Team* fraindlyTeam) {
+	CheckGameOver(teamNum, fraindlyTeam);
+	fraindlyTeam->luggageMove = true;
+	int target = WARRIOR_TEAM_1 + teamNum;
+	SeekAndMove(target, teamNum, LUGGAGE_TEAM_1, fraindlyTeam, fraindlyTeam, fraindlyTeam->luggage);
 }
 
 #pragma region gameLogic
@@ -875,17 +868,15 @@ void MoveTeams(int teamNum, int enemyTeam)
 	fraindlyTeam->PlayTurn(teamNum);
 
 	//warrior 1
-	WarriorMove(teamNum,0, hostileTeam, fraindlyTeam, fraindlyTeam->warrior1, bullet_warrior_1_team[teamNum], grenade_warrior_1_team[teamNum]);
+	WarriorMove(teamNum, 0, hostileTeam, fraindlyTeam, fraindlyTeam->warrior1, bullet_warrior_1_team[teamNum], grenade_warrior_1_team[teamNum]);
 	printf("Team %d Warrior has ammo: %d, hp: %d\n", teamNum, fraindlyTeam->warrior1->getAmmo(), fraindlyTeam->warrior1->getHp());
 
 	//warrior 2
-	WarriorMove(teamNum,1, hostileTeam, fraindlyTeam, fraindlyTeam->warrior2, bullet_warrior_2_team[teamNum], grenade_warrior_2_team[teamNum]);
+	WarriorMove(teamNum, 1, hostileTeam, fraindlyTeam, fraindlyTeam->warrior2, bullet_warrior_2_team[teamNum], grenade_warrior_2_team[teamNum]);
 
 
-	////luggage 
-   	/*teams[teamNum]->luggageMove = true;
-  	int target = WARRIOR_TEAM_1 + teamNum;
-	SeekAndMove(target, teamNum,LUGGAGE_TEAM_1, fraindlyTeam, fraindlyTeam, fraindlyTeam->luggage);*/
+	//luggage 
+	luggageMove(teamNum, fraindlyTeam);
 }
 
 
@@ -895,7 +886,7 @@ void gameIteration()
 	{
 		MoveTeams(0, 1);
 		MoveTeams(1, 0);
-		sleep_for(milliseconds(10));
+		sleep_for(milliseconds(50));
 	}
 	else
 		return;
@@ -912,14 +903,14 @@ void idle()
 		gameIteration();
 	}
 
-	if (fireBulet){
-      fireBulet = pb->fire(maze, teams[0], security_map);
+	if (fireBulet) {
+		fireBulet = pb->fire(maze, teams[0], security_map);
 	}
 
 	if (throwGrenade) {
 		pg->explode(maze, teams[0], security_map);
 	}
-		
+
 	glutPostRedisplay(); // indirect call to display
 }
 
@@ -937,24 +928,9 @@ void menu(int choice)
 	switch (choice)
 	{
 	case 1: // fire a bullet
-		fireBulet = true;
-		break;
-
-	case 2: // throw grenade
-		throwGrenade = true;
-		break;
-
-
-	case 3: // run Best First Search
 		startGame = true;
 		break;
-
-	case 4 :
-		/*CreateSecurityMap();*/
-		break;
 	}
-
-
 }
 
 void main(int argc, char* argv[])
@@ -971,11 +947,9 @@ void main(int argc, char* argv[])
 	glutMouseFunc(mouse);
 
 	glutCreateMenu(menu); // defines function menu as "menu" function
-	
-	glutAddMenuEntry("fire bullet", 1);
-	glutAddMenuEntry("Throw grenade", 2);
-    glutAddMenuEntry("Start Game", 3);
-	glutAddMenuEntry("Show Security Map", 4);
+
+
+	glutAddMenuEntry("Start Game", 1);
 	glutAttachMenu(GLUT_RIGHT_BUTTON); // attach to right mouse button
 
 	init();
